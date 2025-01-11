@@ -1,0 +1,13 @@
+package com.gnimtier.api;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class GnimtierApiApplicationTests {
+
+    @Test
+    void contextLoads() {
+    }
+
+}
