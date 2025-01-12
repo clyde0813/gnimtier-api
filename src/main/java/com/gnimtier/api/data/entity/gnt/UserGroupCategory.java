@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "user_group_category")
 public class UserGroupCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

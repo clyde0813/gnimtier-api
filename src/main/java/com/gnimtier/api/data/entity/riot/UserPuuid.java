@@ -1,10 +1,7 @@
 package com.gnimtier.api.data.entity.riot;
 
 import com.gnimtier.api.data.entity.auth.User;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "user_puuid")
 public class UserPuuid {
     @Id
     private String puuid;
