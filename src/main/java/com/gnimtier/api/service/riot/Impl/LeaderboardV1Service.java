@@ -13,6 +13,7 @@ import com.gnimtier.api.repository.UserGroupRepository;
 import com.gnimtier.api.repository.UserPuuidRepository;
 import com.gnimtier.api.repository.UserRepository;
 import com.gnimtier.api.service.riot.LeaderboardService;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class LeaderboardV1Service implements LeaderboardService {
     private final UserRepository userRepository;
     private final UserPuuidRepository userPuuidRepository;
@@ -31,21 +33,6 @@ public class LeaderboardV1Service implements LeaderboardService {
     private final TftApiClient tftApiClient;
 
     private final Logger logger = LoggerFactory.getLogger(LeaderboardV1Service.class);
-
-    @Autowired
-    public LeaderboardV1Service(
-            UserRepository userRepository,
-            UserPuuidRepository userPuuidRepository,
-            UserGroupRepository userGroupRepository,
-            UserGroupAssociationRepository userGroupAssociationRepository,
-            TftApiClient tftApiClient
-    ) {
-        this.userRepository = userRepository;
-        this.userPuuidRepository = userPuuidRepository;
-        this.userGroupRepository = userGroupRepository;
-        this.userGroupAssociationRepository = userGroupAssociationRepository;
-        this.tftApiClient = tftApiClient;
-    }
 
     @Override
     public TftLeaderboardResponseDto getTierLeaderboardByGroupId(String groupId) {

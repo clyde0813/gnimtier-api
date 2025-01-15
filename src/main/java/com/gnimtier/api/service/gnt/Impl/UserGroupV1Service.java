@@ -4,6 +4,7 @@ import com.gnimtier.api.data.dto.gnt.UserGroupResponseDto;
 import com.gnimtier.api.data.entity.gnt.UserGroup;
 import com.gnimtier.api.repository.UserGroupAssociationRepository;
 import com.gnimtier.api.service.gnt.UserGroupService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,13 +14,9 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class UserGroupV1Service implements UserGroupService {
     private final UserGroupAssociationRepository userGroupAssociationRepository;
-
-    @Autowired
-    public UserGroupV1Service(UserGroupAssociationRepository userGroupAssociationRepository) {
-        this.userGroupAssociationRepository = userGroupAssociationRepository;
-    }
 
     @Override
     public Map<String, List<UserGroupResponseDto>> getUserGroups(String userId) {
