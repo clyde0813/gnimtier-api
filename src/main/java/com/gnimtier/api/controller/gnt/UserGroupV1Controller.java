@@ -3,7 +3,6 @@ package com.gnimtier.api.controller.gnt;
 import com.gnimtier.api.data.dto.gnt.UserGroupResponseDto;
 import com.gnimtier.api.service.gnt.UserGroupService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;

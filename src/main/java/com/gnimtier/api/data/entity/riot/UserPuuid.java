@@ -17,7 +17,6 @@ public class UserPuuid {
     @Id
     private String puuid;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @Column(name = "user_id")
+    private String userId;
 }

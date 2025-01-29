@@ -7,7 +7,6 @@ import com.gnimtier.api.data.dto.riot.tft.internal.request.PuuidRequestDto;
 import com.gnimtier.api.data.dto.riot.tft.internal.response.SummonerResponseDto;
 import com.gnimtier.api.data.entity.auth.User;
 import com.gnimtier.api.data.entity.gnt.UserGroupAssociation;
-import com.gnimtier.api.data.entity.riot.UserPuuid;
 import com.gnimtier.api.repository.UserGroupAssociationRepository;
 import com.gnimtier.api.repository.UserGroupRepository;
 import com.gnimtier.api.repository.UserPuuidRepository;
@@ -16,7 +15,6 @@ import com.gnimtier.api.service.riot.LeaderboardService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -39,21 +37,33 @@ public class LeaderboardV1Service implements LeaderboardService {
         PuuidRequestDto puuidRequestDto = new PuuidRequestDto();
 
         List<String> puuidList = new ArrayList<>();
-        List<UserGroupAssociation> userGroupAssociationList = userGroupAssociationRepository.findAllByUserGroupId(groupId);
+        List<UserGroupAssociation> userGroupAssociationList = userGroupAssociationRepository.findAllByGroupId(groupId);
 
         List<TftUserResponseDto> tftUserResponseDtoList = new ArrayList<>();
         TftLeaderboardResponseDto tftLeaderboardResponseDto = new TftLeaderboardResponseDto();
 
-        userGroupAssociationList.forEach(userGroupAssociation -> puuidList.add(userPuuidRepository.findByUserId(userGroupAssociation.getUser().getId()).getPuuid()));
+        userGroupAssociationList.forEach(userGroupAssociation -> {
+            String userId = userGroupAssociation.getUserId();
+            puuidList.add(userPuuidRepository
+                    .findByUserId(userId)
+                    .getPuuid());
+        });
         puuidRequestDto.setPuuid(puuidList);
         puuidRequestDto.setSortBy("tier");
         puuidRequestDto.setPage(0);
         puuidRequestDto.setPageSize(20);
 //        logger.info("puuidRequestDto: {}", puuidRequestDto);
-        List<SummonerResponseDto> summonerResponseDtoList = tftApiClient.getSummonerLeaderboard(puuidRequestDto).getLeaderboard();
+        List<SummonerResponseDto> summonerResponseDtoList = tftApiClient
+                .getSummonerLeaderboard(puuidRequestDto)
+                .getLeaderboard();
         summonerResponseDtoList.forEach(responseDto -> {
-            User user = userPuuidRepository.findByPuuid(responseDto.getPuuid()).getUser();
-            TftUserResponseDto tftUserResponseDto = new TftUserResponseDto(user.toUserDto(), responseDto);
+            String userId = userPuuidRepository
+                    .findByPuuid(responseDto.getPuuid())
+                    .getUserId();
+            User user = userRepository
+                    .findById(userId)
+                    .get();
+            TftUserResponseDto tftUserResponseDto = new TftUserResponseDto(user.getUserDto(), responseDto);
             tftUserResponseDtoList.add(tftUserResponseDto);
         });
         tftLeaderboardResponseDto.setData(tftUserResponseDtoList);

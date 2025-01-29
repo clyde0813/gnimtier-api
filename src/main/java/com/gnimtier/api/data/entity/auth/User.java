@@ -2,27 +2,36 @@ package com.gnimtier.api.data.entity.auth;
 
 import com.gnimtier.api.data.dto.gnt.UserDto;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
-@Data
+@Getter
+@Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Table(name = "user")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
+    @Column(unique = true, nullable = false)
     private String username;
 
-    public UserDto toUserDto() {
+    @Column(unique = false, nullable = true)
+    private String nickname;
+
+    @Column(nullable = true)
+    private String profileImageUrl;
+
+    @Column(nullable = false)
+    private String password;
+
+    public UserDto getUserDto() {
         UserDto userDto = new UserDto();
-        userDto.setUsername(username);
+        userDto.setNickname(nickname);
+        userDto.setProfileImageUrl(profileImageUrl);
         return userDto;
     }
 }

@@ -8,5 +8,5 @@ import java.util.List;
 public interface UserGroupAssociationRepository extends JpaRepository<UserGroupAssociation, Long> {
     List<UserGroupAssociation> findAllByUserId(String userId);
 
-    List<UserGroupAssociation> findAllByUserGroupId(String groupId);
+    List<UserGroupAssociation> findAllByGroupId(String groupId);
 }

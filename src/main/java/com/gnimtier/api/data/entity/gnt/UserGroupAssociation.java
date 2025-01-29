@@ -15,14 +15,12 @@ import lombok.NoArgsConstructor;
 @Table(name = "user_group_association")
 public class UserGroupAssociation {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @Column(name = "user_id")
+    private String userId;
 
-    @ManyToOne
-    @JoinColumn(name = "user_group_id")
-    private UserGroup userGroup;
+    @Column(name = "group_id")
+    private String groupId;
 }

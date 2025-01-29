@@ -20,9 +20,8 @@ public class UserGroup {
     @Column(name = "name")
     private String name;
 
-    @ManyToOne
-    @JoinColumn(name = "group_category_id")
-    private UserGroupCategory groupCategory;
+    @Column(name = "category_id")
+    private int categoryId;
 
     @Column(name = "description")
     private String description;
@@ -30,8 +29,8 @@ public class UserGroup {
     @Column(name = "is_official")
     private boolean isOfficial;
 
-    @ManyToOne
-    private UserGroup parent;
+    @Column(name = "parent_id")
+    private String parentId;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
