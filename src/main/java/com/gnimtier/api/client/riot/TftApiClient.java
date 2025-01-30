@@ -4,8 +4,10 @@ import com.gnimtier.api.constant.riot.GntRiotApiConstants;
 import com.gnimtier.api.constant.riot.TftApiPathConstants;
 import com.gnimtier.api.data.dto.riot.tft.internal.request.PuuidRequestDto;
 import com.gnimtier.api.data.dto.riot.tft.internal.response.SummonerLeaderboardResponseDto;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -13,12 +15,8 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 @Component
 public class TftApiClient {
-    private final WebClient webClient;
     private final Logger logger = LoggerFactory.getLogger(TftApiClient.class);
 
-    public TftApiClient(WebClient webClient) {
-        this.webClient = webClient;
-    }
 
     private void logError(String where, HttpStatusCode statusCode, String message) {
         logger.error("{}: {}: {}", where, statusCode, message);
@@ -30,15 +28,13 @@ public class TftApiClient {
 
     public SummonerLeaderboardResponseDto getSummonerLeaderboard(PuuidRequestDto puuidRequestDto) {
         try {
-            SummonerLeaderboardResponseDto response = webClient
+            SummonerLeaderboardResponseDto response = WebClient
+                    .create(GntRiotApiConstants.BASE_URL)
                     .post()
                     .uri(uriBuilder -> uriBuilder
-                                    .scheme("http")
-                                    .host(GntRiotApiConstants.BASE_URL)
-                                    .port(8081)
+                                    .scheme("https")
                                     .path(TftApiPathConstants.TFT_SUMMONER_RANKING)
-//                            .queryParam()
-                                    .build()
+                                    .build(true)
                     )
                     .bodyValue(puuidRequestDto)
                     .retrieve()

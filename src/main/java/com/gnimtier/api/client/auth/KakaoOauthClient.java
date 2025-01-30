@@ -19,7 +19,6 @@ import reactor.core.publisher.Mono;
 @Component
 @RequiredArgsConstructor
 public class KakaoOauthClient {
-    private final WebClient webClient;
     private final Logger LOGGER = LoggerFactory.getLogger(KakaoOauthClient.class);
 
     @Value("${kakao.client_id}")
