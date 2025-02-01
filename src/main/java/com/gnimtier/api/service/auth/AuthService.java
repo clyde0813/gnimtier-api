@@ -1,14 +1,17 @@
 package com.gnimtier.api.service.auth;
 
+import com.gnimtier.api.config.security.JwtAuthentication;
 import com.gnimtier.api.config.security.JwtUtil;
 import com.gnimtier.api.data.entity.auth.User;
 import com.gnimtier.api.exception.CustomException;
 import com.gnimtier.api.repository.UserRepository;
+import com.gnimtier.api.service.gnt.UserService;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -17,7 +20,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthService {
     private final UserRepository userRepository;
-//    private final PasswordEncoderService passwordEncoderService;
+    private final UserService userService;
     private final JwtUtil jwtUtil;
 
     private final Logger LOGGER = LoggerFactory.getLogger(AuthService.class);
@@ -51,7 +54,7 @@ public class AuthService {
 
     public Map<String, String> refreshToken(String refreshToken) {
         try {
-            Claims claims = jwtUtil.validateToken(refreshToken);
+            Claims claims = jwtUtil.getTokenPayload(refreshToken);
             if (!"refresh".equals(claims.get("tokenType"))) {
                 LOGGER.error("[getUserFromToken] Token tokenType mismatch");
                 throw new CustomException("tokenType Error", HttpStatus.BAD_REQUEST);
@@ -64,7 +67,16 @@ public class AuthService {
         }
     }
 
-    public User getUserByAccessToken(String accessToken) {
-        return jwtUtil.getUserFromToken(accessToken);
+    // 로그인(토큰 유효성) 검사
+    public String isTokenValid(String token) {
+        return jwtUtil.validateToken(token);
+    }
+
+    public User getUserFromAuthentication() {
+        JwtAuthentication jwtAuthentication = (JwtAuthentication) SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+        String userId = jwtAuthentication.getPrincipal();
+        return userService.getUserByUserId(userId);
     }
 }

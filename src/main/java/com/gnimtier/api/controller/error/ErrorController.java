@@ -11,6 +11,6 @@ public class ErrorController implements org.springframework.boot.web.servlet.err
 
     @RequestMapping(value = ERROR_PATH)
     public void error() {
-        throw new CustomException("404", HttpStatus.NOT_FOUND);
+        throw new CustomException("Bad Request", HttpStatus.BAD_REQUEST);
     }
 }

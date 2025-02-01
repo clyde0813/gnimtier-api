@@ -7,18 +7,17 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.web.filter.ForwardedHeaderFilter;
 
 @Configuration
 public class SwaggerConfig {
     @Bean
     public OpenAPI openAPI() {
-        final String securitySchemeName = "bearerAuth";
+        final String securitySchemeName = "Authorization";
         SecurityScheme securityScheme = new SecurityScheme()
                 .name(securitySchemeName)
                 .type(SecurityScheme.Type.HTTP)
-                .scheme("bearer")
+                .scheme("Bearer")
                 .bearerFormat("JWT");
         return new OpenAPI()
                 .components(new Components()

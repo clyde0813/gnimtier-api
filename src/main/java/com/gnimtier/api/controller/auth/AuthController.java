@@ -2,13 +2,9 @@ package com.gnimtier.api.controller.auth;
 
 import com.gnimtier.api.config.security.JwtUtil;
 import com.gnimtier.api.service.auth.AuthService;
-import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -20,17 +16,19 @@ public class AuthController {
     // 토큰 Refresh
     @GetMapping("/refresh")
     public ResponseEntity<?> refresh(
-            @RequestParam String refreshToken
+            @RequestHeader(value = "Refresh", required = false) String refreshToken
     ) {
-        return ResponseEntity.ok(authService.refreshToken(refreshToken));
+        String bearerToken = JwtUtil.resolveToken(refreshToken);
+        return ResponseEntity.ok(authService.refreshToken(bearerToken));
     }
 
     // 토큰 검증
     @GetMapping("/validate")
-    public ResponseEntity<Claims> validate(
+    public ResponseEntity<Boolean> validate(
             @RequestParam String token
     ) {
-        return ResponseEntity.ok(jwtUtil.validateToken(token));
+        jwtUtil.validateToken(token);
+        return ResponseEntity.ok(true);
     }
 
     // 회원가입

@@ -7,6 +7,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +42,15 @@ public class JwtUtil {
         this.userRepository = userRepository;
     }
 
+
+    public static String resolveToken(String bearerToken) {
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        } else {
+            throw new CustomException("Invalid token", HttpStatus.UNAUTHORIZED);
+        }
+    }
+
     // 접근 토큰 생성
     public String generateAccessToken(String userId) {
         LOGGER.info("[generateAccessToken] Access Token Generated : {}", userId);
@@ -67,22 +77,22 @@ public class JwtUtil {
                 .compact();
     }
 
-    // 토큰 유효성 검사
-    public Claims validateToken(String token) {
-        LOGGER.info("[validateToken] Token validation check start");
+    // 토큰 payload extract
+    public Claims getTokenPayload(String token) {
+        LOGGER.info("[getTokenPayload] Token");
         Jws<Claims> claimsJws = Jwts
                 .parser()
                 .verifyWith(SECRET_KEY)
                 .build()
                 .parseSignedClaims(token);
-        LOGGER.info("[validateToken] Token validation check end : {}", claimsJws.getPayload());
+        LOGGER.info("[getTokenPayload] Token payload : {}", claimsJws.getPayload());
         return claimsJws.getPayload();
     }
 
 
     public User getUserFromToken(String token) {
         LOGGER.info("[getUserFromToken] Token get User start");
-        Claims claims = validateToken(token);
+        Claims claims = getTokenPayload(token);
         if (!"access".equals(claims.get("tokenType"))) {
             LOGGER.error("[getUserFromToken] Token tokenType mismatch");
             throw new CustomException("tokenType Error", HttpStatus.BAD_REQUEST);
@@ -91,7 +101,19 @@ public class JwtUtil {
         if (user.isPresent()) {
             return user.get();
         } else {
-            throw new CustomException("user not found", HttpStatus.NOT_FOUND);
+            throw new CustomException("Invalid token", HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    public String validateToken(String token) {
+        LOGGER.info("[validateToken] Token validation check start");
+        try {
+            getTokenPayload(token);
+            LOGGER.info("[validateToken] Token validation check success");
+            return token;
+        } catch (Exception e) {
+            LOGGER.error("[validateToken] Token validation check fail - invalid token");
+            throw new CustomException("Invalid token", HttpStatus.UNAUTHORIZED);
         }
     }
 }
