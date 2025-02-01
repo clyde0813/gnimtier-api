@@ -21,15 +21,12 @@ import java.util.Date;
 import java.util.Optional;
 
 @Component
-@RequiredArgsConstructor
 public class JwtUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtUtil.class);
-//    private final UserDetailsService userDetailsService;
-
     private final SecretKey SECRET_KEY;
     private final long ACCESS_TOKEN_EXPIRATION_TIME;
     private final long REFRESH_TOKEN_EXPIRATION_TIME;
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     //static 으로 만들고자 하였으나, @Value 어노테이션은 static 변수에 적용이 불가능함
     @Autowired

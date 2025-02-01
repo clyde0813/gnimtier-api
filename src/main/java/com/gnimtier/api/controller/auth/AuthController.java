@@ -1,13 +1,14 @@
 package com.gnimtier.api.controller.auth;
 
 import com.gnimtier.api.config.security.JwtUtil;
-import com.gnimtier.api.data.dto.auth.request.LoginDto;
-import com.gnimtier.api.data.dto.auth.request.SignUpDto;
 import com.gnimtier.api.service.auth.AuthService;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/auth")
@@ -15,19 +16,6 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final AuthService authService;
     private final JwtUtil jwtUtil;
-
-    // 회원가입
-    @PostMapping("/signup")
-    public ResponseEntity<?> register(@RequestBody SignUpDto signUpDto) {
-        authService.signUp(signUpDto);
-        return ResponseEntity.ok("User registered successfully");
-    }
-
-    // 로그인
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginDto loginDto) {
-        return ResponseEntity.ok(authService.login(loginDto));
-    }
 
     // 토큰 Refresh
     @GetMapping("/refresh")
@@ -44,6 +32,19 @@ public class AuthController {
     ) {
         return ResponseEntity.ok(jwtUtil.validateToken(token));
     }
+
+    // 회원가입
+//    @PostMapping("/signup")
+//    public ResponseEntity<?> register(@RequestBody SignUpDto signUpDto) {
+//        authService.signUp(signUpDto);
+//        return ResponseEntity.ok("User registered successfully");
+//    }
+
+    // 로그인
+//    @PostMapping("/login")
+//    public ResponseEntity<?> login(@RequestBody LoginDto loginDto) {
+//        return ResponseEntity.ok(authService.login(loginDto));
+//    }
 
 //    // 토큰 - 사용자 추출
 //    @GetMapping("/token")

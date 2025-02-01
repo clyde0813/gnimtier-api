@@ -14,8 +14,10 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users")
-public class UserGroupV1Controller {
+public class UserGroupController {
     private final UserGroupService userGroupService;
+
+
 
     @GetMapping("/{userId}/groups")
     public Map<String, List<UserGroupResponseDto>> getGroups(@PathVariable String userId) {
