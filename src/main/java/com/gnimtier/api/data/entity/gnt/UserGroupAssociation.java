@@ -21,6 +21,10 @@ public class UserGroupAssociation {
     @Column(name = "user_id")
     private String userId;
 
+    // 성능 튜닝용
+    @Column(name = "puuid")
+    private String puuid;
+
     @Column(name = "group_id")
     private String groupId;
 }

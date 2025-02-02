@@ -79,7 +79,7 @@ public class JwtUtil {
 
     // 토큰 payload extract
     public Claims getTokenPayload(String token) {
-        LOGGER.info("[getTokenPayload] Token");
+        LOGGER.info("[getTokenPayload] Token : {}", token);
         Jws<Claims> claimsJws = Jwts
                 .parser()
                 .verifyWith(SECRET_KEY)

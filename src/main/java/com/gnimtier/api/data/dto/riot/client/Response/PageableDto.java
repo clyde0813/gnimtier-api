@@ -1,4 +1,4 @@
-package com.gnimtier.api.data.dto.riot.internal.response;
+package com.gnimtier.api.data.dto.riot.client.Response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,8 +11,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SummonerLeaderboardResponseDto {
-    private List<SummonerResponseDto> leaderboard;
-    private int pageSize;
+public class PageableDto<T> {
+    private List<T> data;
+    private String sortBy;
     private int page;
+    private int pageSize;
 }

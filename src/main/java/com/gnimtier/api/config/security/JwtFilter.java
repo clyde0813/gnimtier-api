@@ -34,17 +34,12 @@ public class JwtFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             // Bearer -> 공백 포함 7글자 제외하고 토큰 가져오기
             String token = authHeader.substring(7);
-            try {
-                Claims claims = jwtUtil.getTokenPayload(token);
-                String userId = claims.getSubject();
-                if (userId != null) {
-                    SecurityContextHolder
-                            .getContext()
-                            .setAuthentication(new JwtAuthentication(claims.getSubject()));
-                }
-            } catch (Exception e) {
-                LOGGER.error("Invalid token : {}", e.getMessage());
-                throw new CustomException("Invalid token", HttpStatus.BAD_REQUEST);
+            Claims claims = jwtUtil.getTokenPayload(token);
+            String userId = claims.getSubject();
+            if (userId != null) {
+                SecurityContextHolder
+                        .getContext()
+                        .setAuthentication(new JwtAuthentication(claims.getSubject()));
             }
         }
         chain.doFilter(request, response);

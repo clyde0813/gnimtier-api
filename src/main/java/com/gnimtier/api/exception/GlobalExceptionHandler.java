@@ -1,13 +1,16 @@
 package com.gnimtier.api.exception;
 
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -32,11 +35,59 @@ public class GlobalExceptionHandler {
                 ));
     }
 
-    @ExceptionHandler(AuthorizationDeniedException.class)
-    public ResponseEntity<Object> handleAuthorizationDeniedException(AuthorizationDeniedException ex, HttpServletRequest request) {
-        LOGGER.error("Authorization denied", ex);
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<Object> handleAuthenticationException(AuthenticationException ex, HttpServletRequest request) {
+        LOGGER.error("[AuthenticationException] {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "message", "Unauthorized",
+                        "status", HttpStatus.UNAUTHORIZED.value()
+                ));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex, HttpServletRequest request) {
+        LOGGER.error("[AccessDeniedException] {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "message", "Unauthorized",
+                        "status", HttpStatus.UNAUTHORIZED.value()
+                ));
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<Object> handleAuthorizationDeniedException(AuthorizationDeniedException ex, HttpServletRequest request) {
+        LOGGER.error("[handleAuthorizationDeniedException] Authorization denied", ex);
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "message", "Unauthorized",
+                        "status", HttpStatus.UNAUTHORIZED.value()
+                ));
+    }
+
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<Object> handleJwtException(JwtException ex, HttpServletRequest request) {
+        LOGGER.error("[handleJwtException] JwtException", ex);
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "message", "Unauthorized",
+                        "status", HttpStatus.UNAUTHORIZED.value()
+                ));
+    }
+
+    @ExceptionHandler(MalformedJwtException.class)
+    public ResponseEntity<Object> handleMalformedJwtException(MalformedJwtException ex, HttpServletRequest request) {
+        LOGGER.error("[handleMalformedJwtException] MalformedJwtException", ex);
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
                 .body(Map.of(
                         "timestamp", LocalDateTime.now(),
                         "message", "Unauthorized",
