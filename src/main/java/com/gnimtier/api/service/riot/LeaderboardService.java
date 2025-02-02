@@ -1,10 +1,11 @@
 package com.gnimtier.api.service.riot;
 
 import com.gnimtier.api.client.riot.RiotApiClient;
-import com.gnimtier.api.data.dto.riot.tft.client.Response.TftLeaderboardResponseDto;
-import com.gnimtier.api.data.dto.riot.tft.client.Response.TftUserResponseDto;
-import com.gnimtier.api.data.dto.riot.tft.internal.request.PuuidRequestDto;
-import com.gnimtier.api.data.dto.riot.tft.internal.response.SummonerResponseDto;
+import com.gnimtier.api.data.dto.riot.client.Response.RiotLeaderboardResponseDto;
+import com.gnimtier.api.data.dto.riot.client.Response.RiotUserResponseDto;
+import com.gnimtier.api.data.dto.riot.client.request.PuuidRequestDto;
+import com.gnimtier.api.data.dto.riot.internal.LeaderboardParamDto;
+import com.gnimtier.api.data.dto.riot.internal.response.SummonerResponseDto;
 import com.gnimtier.api.data.entity.auth.User;
 import com.gnimtier.api.data.entity.gnt.UserGroupAssociation;
 import com.gnimtier.api.repository.UserGroupAssociationRepository;
@@ -29,16 +30,18 @@ public class LeaderboardService {
 
     private final RiotApiClient tftApiClient;
 
-    private final Logger logger = LoggerFactory.getLogger(LeaderboardService.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(LeaderboardService.class);
 
-    public TftLeaderboardResponseDto getTierLeaderboardByGroupId(String groupId, int page) {
+    public RiotLeaderboardResponseDto getLeaderboard(LeaderboardParamDto leaderboardParamDto) {
         PuuidRequestDto puuidRequestDto = new PuuidRequestDto();
 
+        // gnt riot api에 보낼 puuid list
         List<String> puuidList = new ArrayList<>();
-        List<UserGroupAssociation> userGroupAssociationList = userGroupAssociationRepository.findAllByGroupId(groupId);
+        // 그룹 - 유저 간 연결 조회
+        List<UserGroupAssociation> userGroupAssociationList = userGroupAssociationRepository.findAllByGroupId(leaderboardParamDto.getGroupId());
 
-        List<TftUserResponseDto> tftUserResponseDtoList = new ArrayList<>();
-        TftLeaderboardResponseDto tftLeaderboardResponseDto = new TftLeaderboardResponseDto();
+        List<RiotUserResponseDto> riotUserResponseDtoList = new ArrayList<>();
+        RiotLeaderboardResponseDto riotLeaderboardResponseDto = new RiotLeaderboardResponseDto();
 
         userGroupAssociationList.forEach(userGroupAssociation -> {
             String userId = userGroupAssociation.getUserId();
@@ -46,11 +49,11 @@ public class LeaderboardService {
                     .findByUserId(userId)
                     .getPuuid());
         });
+
         puuidRequestDto.setPuuid(puuidList);
-        puuidRequestDto.setSortBy("tier");
-        puuidRequestDto.setPage(page);
+        puuidRequestDto.setSortBy(leaderboardParamDto.getSortBy());
+        puuidRequestDto.setPage(leaderboardParamDto.getPage());
         puuidRequestDto.setPageSize(5);
-//        logger.info("puuidRequestDto: {}", puuidRequestDto);
         List<SummonerResponseDto> summonerResponseDtoList = tftApiClient
                 .getSummonerLeaderboard(puuidRequestDto)
                 .getLeaderboard();
@@ -61,12 +64,12 @@ public class LeaderboardService {
             User user = userRepository
                     .findById(userId)
                     .get();
-            TftUserResponseDto tftUserResponseDto = new TftUserResponseDto(user.getUserDto(), responseDto);
-            tftUserResponseDtoList.add(tftUserResponseDto);
+            RiotUserResponseDto tftUserResponseDto = new RiotUserResponseDto(user.getUserDto(), responseDto);
+            riotUserResponseDtoList.add(tftUserResponseDto);
         });
-        tftLeaderboardResponseDto.setData(tftUserResponseDtoList);
-        tftLeaderboardResponseDto.setPage(page);
-        tftLeaderboardResponseDto.setPageSize(5);
-        return tftLeaderboardResponseDto;
+        riotLeaderboardResponseDto.setData(riotUserResponseDtoList);
+        riotLeaderboardResponseDto.setPage(leaderboardParamDto.getPage());
+        riotLeaderboardResponseDto.setPageSize(5);
+        return riotLeaderboardResponseDto;
     }
 }

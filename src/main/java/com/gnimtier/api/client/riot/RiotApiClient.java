@@ -1,7 +1,7 @@
 package com.gnimtier.api.client.riot;
 
-import com.gnimtier.api.data.dto.riot.tft.internal.request.PuuidRequestDto;
-import com.gnimtier.api.data.dto.riot.tft.internal.response.SummonerLeaderboardResponseDto;
+import com.gnimtier.api.data.dto.riot.client.request.PuuidRequestDto;
+import com.gnimtier.api.data.dto.riot.internal.response.SummonerLeaderboardResponseDto;
 import com.gnimtier.api.exception.CustomException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

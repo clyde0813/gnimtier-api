@@ -1,8 +1,7 @@
-package com.gnimtier.api.data.dto.riot.tft.internal.response;
+package com.gnimtier.api.data.dto.riot.internal.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 

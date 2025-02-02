@@ -1,4 +1,4 @@
-package com.gnimtier.api.data.dto.riot.tft.internal.request;
+package com.gnimtier.api.data.dto.riot.client.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

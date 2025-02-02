@@ -1,6 +1,5 @@
-package com.gnimtier.api.data.dto.riot.tft.client.Response;
+package com.gnimtier.api.data.dto.riot.client.Response;
 
-import com.gnimtier.api.data.dto.gnt.UserDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,8 +11,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TftLeaderboardResponseDto {
-    private List<TftUserResponseDto> data;
+public class RiotLeaderboardResponseDto {
+    private List<RiotUserResponseDto> data;
     private int page;
     private int pageSize;
 }
