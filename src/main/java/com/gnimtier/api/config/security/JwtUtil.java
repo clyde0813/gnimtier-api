@@ -1,14 +1,12 @@
 package com.gnimtier.api.config.security;
 
-import com.gnimtier.api.data.entity.auth.User;
 import com.gnimtier.api.exception.CustomException;
 import com.gnimtier.api.repository.UserRepository;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +17,6 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.Optional;
 
 @Component
 public class JwtUtil {
@@ -51,6 +48,10 @@ public class JwtUtil {
         }
     }
 
+    public SecretKey getSecretKey() {
+        return SECRET_KEY;
+    }
+
     // 접근 토큰 생성
     public String generateAccessToken(String userId) {
         LOGGER.info("[generateAccessToken] Access Token Generated : {}", userId);
@@ -79,31 +80,21 @@ public class JwtUtil {
 
     // 토큰 payload extract
     public Claims getTokenPayload(String token) {
-        LOGGER.info("[getTokenPayload] Token : {}", token);
-        Jws<Claims> claimsJws = Jwts
-                .parser()
-                .verifyWith(SECRET_KEY)
-                .build()
-                .parseSignedClaims(token);
-        LOGGER.info("[getTokenPayload] Token payload : {}", claimsJws.getPayload());
-        return claimsJws.getPayload();
-    }
-
-
-    public User getUserFromToken(String token) {
-        LOGGER.info("[getUserFromToken] Token get User start");
-        Claims claims = getTokenPayload(token);
-        if (!"access".equals(claims.get("tokenType"))) {
-            LOGGER.error("[getUserFromToken] Token tokenType mismatch");
-            throw new CustomException("tokenType Error", HttpStatus.BAD_REQUEST);
-        }
-        Optional<User> user = userRepository.findById((String) claims.getSubject());
-        if (user.isPresent()) {
-            return user.get();
-        } else {
-            throw new CustomException("Invalid token", HttpStatus.UNAUTHORIZED);
+        try {
+            LOGGER.info("[getTokenPayload] Token : {}", token);
+            Jws<Claims> claimsJws = Jwts
+                    .parser()
+                    .verifyWith(SECRET_KEY)
+                    .build()
+                    .parseSignedClaims(token);
+            LOGGER.info("[getTokenPayload] Token payload : {}", claimsJws.getPayload());
+            return claimsJws.getPayload();
+        } catch (ExpiredJwtException e) {
+            LOGGER.error("[getTokenPayload] Token expired");
+            throw new CustomException("Token expired", HttpStatus.UNAUTHORIZED);
         }
     }
+
 
     public String validateToken(String token) {
         LOGGER.info("[validateToken] Token validation check start");

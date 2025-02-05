@@ -18,7 +18,7 @@ public class AuthController {
     public ResponseEntity<?> refresh(
             @RequestHeader(value = "Refresh", required = false) String refreshToken
     ) {
-        String bearerToken = JwtUtil.resolveToken(refreshToken);
+        String bearerToken = refreshToken;
         return ResponseEntity.ok(authService.refreshToken(bearerToken));
     }
 

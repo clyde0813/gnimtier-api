@@ -63,10 +63,10 @@ public class DevSecurityConfig {
         http.addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
         // security exception
-        http.exceptionHandling(exception -> exception
-                .authenticationEntryPoint(customAuthenticationEntryPoint)
-                .accessDeniedHandler(customAccessDeniedHandler)
-        );
+//        http.exceptionHandling(exception -> exception
+//                .authenticationEntryPoint(customAuthenticationEntryPoint)
+//                .accessDeniedHandler(customAccessDeniedHandler)
+//        );
 
         return http.build();
     }

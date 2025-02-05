@@ -40,12 +40,13 @@ public class UserGroup {
     private LocalDateTime updatedAt;
 
     public UserGroupDto toDto() {
-        UserGroupDto dto = new UserGroupDto();
-        dto.setId(id);
-        dto.setName(name);
-        dto.setDescription(description);
-        dto.setParentId(parentId);
-        dto.setIsRoot(isRoot);
-        return dto;
+        return UserGroupDto
+                .builder()
+                .id(id)
+                .name(name)
+                .description(description)
+                .parentId(parentId)
+                .isRoot(isRoot)
+                .build();
     }
 }

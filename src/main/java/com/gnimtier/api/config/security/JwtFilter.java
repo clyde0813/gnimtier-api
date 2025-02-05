@@ -3,6 +3,9 @@ package com.gnimtier.api.config.security;
 
 import com.gnimtier.api.exception.CustomException;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,11 +13,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import javax.crypto.SecretKey;
 import java.io.IOException;
 
 @Component
@@ -22,6 +28,7 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+
 
     @Override
     protected void doFilterInternal(
@@ -34,12 +41,33 @@ public class JwtFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             // Bearer -> 공백 포함 7글자 제외하고 토큰 가져오기
             String token = authHeader.substring(7);
-            Claims claims = jwtUtil.getTokenPayload(token);
-            String userId = claims.getSubject();
-            if (userId != null) {
-                SecurityContextHolder
-                        .getContext()
-                        .setAuthentication(new JwtAuthentication(claims.getSubject()));
+            try {
+                LOGGER.info("[getTokenPayload] Token : {}", token);
+                Jws<Claims> claimsJws = Jwts
+                        .parser()
+                        .verifyWith(jwtUtil.getSecretKey())
+                        .build()
+                        .parseSignedClaims(token);
+                LOGGER.info("[getTokenPayload] Token payload : {}", claimsJws.getPayload());
+                Claims claims = claimsJws.getPayload();
+                String userId = claims.getSubject();
+                if (userId != null) {
+                    SecurityContextHolder
+                            .getContext()
+                            .setAuthentication(new JwtAuthentication(claims.getSubject()));
+                }
+            } catch (ExpiredJwtException e) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response
+                        .getWriter()
+                        .write("Token Expired");
+                return;
+            } catch (Exception e) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response
+                        .getWriter()
+                        .write("Unauthorized");
+                return;
             }
         }
         chain.doFilter(request, response);
