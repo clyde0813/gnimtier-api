@@ -1,5 +1,6 @@
 package com.gnimtier.api.data.entity.gnt;
 
+import com.gnimtier.api.data.dto.gnt.UserGroupDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,6 +33,19 @@ public class UserGroup {
     @Column(name = "parent_id")
     private String parentId;
 
+    @Column(name = "is_root")
+    private boolean isRoot;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    public UserGroupDto toDto() {
+        UserGroupDto dto = new UserGroupDto();
+        dto.setId(id);
+        dto.setName(name);
+        dto.setDescription(description);
+        dto.setParentId(parentId);
+        dto.setIsRoot(isRoot);
+        return dto;
+    }
 }

@@ -2,11 +2,9 @@ package com.gnimtier.api.config.security;
 
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -17,7 +15,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -34,11 +31,9 @@ import java.util.List;
 public class DevSecurityConfig {
     private final JwtUtil jwtUtil;
 
-    @Autowired
-    private AuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final AuthenticationEntryPoint customAuthenticationEntryPoint;
 
-    @Autowired
-    private AccessDeniedHandler customAccessDeniedHandler;
+    private final AccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -46,25 +41,33 @@ public class DevSecurityConfig {
         http.cors(cors -> cors
                 .configurationSource(corsConfigurationSource())
         );
+
         //formLogin disable
         http.csrf(AbstractHttpConfigurer::disable);
+
         //http basic Authentication disable
         http.httpBasic(AbstractHttpConfigurer::disable);
+
         //formLogin disable
         http.formLogin(AbstractHttpConfigurer::disable);
         http.sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
         //authorizeHttpRequests config
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated());
+
+        http.addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
+
+        // security exception
         http.exceptionHandling(exception -> exception
                 .authenticationEntryPoint(customAuthenticationEntryPoint)
                 .accessDeniedHandler(customAccessDeniedHandler)
         );
-        http.addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 
