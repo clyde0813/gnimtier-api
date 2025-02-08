@@ -1,4 +1,4 @@
-package com.gnimtier.api.data.dto.riot.client.Response;
+package com.gnimtier.api.data.dto.riot.client.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PageableDto<T> {
+public class PageableRequestDto<T> {
     private List<T> data;
     private String sortBy;
     private int page;

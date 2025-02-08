@@ -1,8 +1,9 @@
 package com.gnimtier.api.service.riot;
 
 import com.gnimtier.api.client.riot.RiotApiClient;
-import com.gnimtier.api.data.dto.riot.client.Response.PageableDto;
+import com.gnimtier.api.data.dto.riot.client.Response.PageableResponseDto;
 import com.gnimtier.api.data.dto.riot.client.Response.RiotUserResponseDto;
+import com.gnimtier.api.data.dto.riot.client.request.PageableRequestDto;
 import com.gnimtier.api.data.dto.riot.internal.LeaderboardParamDto;
 import com.gnimtier.api.data.dto.riot.internal.response.SummonerResponseDto;
 import com.gnimtier.api.data.entity.auth.User;
@@ -35,8 +36,9 @@ public class LeaderboardService {
     private final Logger LOGGER = LoggerFactory.getLogger(LeaderboardService.class);
     private final UserService userService;
 
-    public PageableDto<RiotUserResponseDto> getLeaderboard(LeaderboardParamDto leaderboardParamDto) {
-        PageableDto<String> puuidRequestDto = new PageableDto<>();
+    public PageableResponseDto<RiotUserResponseDto> getLeaderboard(LeaderboardParamDto leaderboardParamDto) {
+        // gnt riot 에 보낼 요청 body
+        PageableRequestDto<String> puuidRequestDto = new PageableRequestDto<>();
 
         // gnt riot api에 보낼 puuid list
         List<String> puuidList = new ArrayList<>();
@@ -44,7 +46,7 @@ public class LeaderboardService {
         List<UserGroupAssociation> userGroupAssociationList = userGroupAssociationRepository.findAllByGroupId(leaderboardParamDto.getGroupId());
 
         List<RiotUserResponseDto> riotUserResponseDtoList = new ArrayList<>();
-        PageableDto<RiotUserResponseDto> riotLeaderboardResponseDto = new PageableDto<>();
+        PageableResponseDto<RiotUserResponseDto> riotLeaderboardResponseDto = new PageableResponseDto<>();
         userGroupAssociationList.forEach(association -> puuidList.add(association.getPuuid()));
 
 
@@ -52,24 +54,32 @@ public class LeaderboardService {
         puuidRequestDto.setSortBy(leaderboardParamDto.getSortBy());
         puuidRequestDto.setPage(leaderboardParamDto.getPage());
         puuidRequestDto.setPageSize(5);
-        PageableDto<SummonerResponseDto> summonerResponseDtoList = tftApiClient
+
+        PageableResponseDto<SummonerResponseDto> summonerResponseDtoList = tftApiClient
                 .getSummonerLeaderboard(puuidRequestDto);
-        summonerResponseDtoList.getData().forEach(responseDto -> {
-            String userId = userPuuidRepository
-                    .findByPuuid(responseDto.getPuuid())
-                    .getUserId();
-            User user;
-            try {
-                user = userService.getUserByUserId(userId);
-            } catch (Exception e) {
-                throw new CustomException("User Not Found", HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-            RiotUserResponseDto tftUserResponseDto = new RiotUserResponseDto(user.getUserDto(), responseDto);
-            riotUserResponseDtoList.add(tftUserResponseDto);
-        });
+
+        summonerResponseDtoList
+                .getData()
+                .forEach(responseDto -> {
+                    String userId = userPuuidRepository
+                            .findByPuuid(responseDto.getPuuid())
+                            .getUserId();
+                    User user;
+                    try {
+                        user = userService.getUserByUserId(userId);
+                    } catch (Exception e) {
+                        throw new CustomException("User Not Found", HttpStatus.INTERNAL_SERVER_ERROR);
+                    }
+                    RiotUserResponseDto tftUserResponseDto = new RiotUserResponseDto(user.getUserDto(), responseDto);
+                    riotUserResponseDtoList.add(tftUserResponseDto);
+                });
         riotLeaderboardResponseDto.setData(riotUserResponseDtoList);
         riotLeaderboardResponseDto.setPage(leaderboardParamDto.getPage());
         riotLeaderboardResponseDto.setPageSize(5);
+        riotLeaderboardResponseDto.setTotalPages(summonerResponseDtoList.getTotalPages());
+        riotLeaderboardResponseDto.setTotalElements(summonerResponseDtoList.getTotalElements());
+        riotLeaderboardResponseDto.setHasNext(summonerResponseDtoList.getHasNext());
+        riotLeaderboardResponseDto.setHasPrevious(summonerResponseDtoList.getHasPrevious());
         return riotLeaderboardResponseDto;
     }
 }

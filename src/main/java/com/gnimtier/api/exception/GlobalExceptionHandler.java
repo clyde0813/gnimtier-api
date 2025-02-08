@@ -39,7 +39,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleAuthenticationException(AuthenticationException ex, HttpServletRequest request) {
         LOGGER.error("[AuthenticationException] {}", ex.getMessage());
         return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .status(HttpStatus.UNAUTHORIZED)
                 .body(Map.of(
                         "timestamp", LocalDateTime.now(),
                         "message", "Unauthorized",
@@ -51,7 +51,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex, HttpServletRequest request) {
         LOGGER.error("[AccessDeniedException] {}", ex.getMessage());
         return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .status(HttpStatus.UNAUTHORIZED)
                 .body(Map.of(
                         "timestamp", LocalDateTime.now(),
                         "message", "Unauthorized",
@@ -63,7 +63,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleAuthorizationDeniedException(AuthorizationDeniedException ex, HttpServletRequest request) {
         LOGGER.error("[handleAuthorizationDeniedException] Authorization denied", ex);
         return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .status(HttpStatus.UNAUTHORIZED)
                 .body(Map.of(
                         "timestamp", LocalDateTime.now(),
                         "message", "Unauthorized",

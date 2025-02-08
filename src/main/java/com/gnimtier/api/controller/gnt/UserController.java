@@ -1,6 +1,7 @@
 package com.gnimtier.api.controller.gnt;
 
 import com.gnimtier.api.data.dto.gnt.UserDto;
+import com.gnimtier.api.data.dto.gnt.UserGroupDto;
 import com.gnimtier.api.data.dto.gnt.UserGroupResponseDto;
 import com.gnimtier.api.data.entity.auth.User;
 import com.gnimtier.api.repository.UserRepository;
@@ -37,9 +38,9 @@ public class UserController {
 
     @GetMapping("/groups")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Map<String, List<UserGroupResponseDto>>> getGroups() {
+    public List<UserGroupDto> getGroups() {
         LOGGER.info("[UserGroupController.getGroups()] Get groups");
         User user = authService.getUserFromAuthentication();
-        return ResponseEntity.ok(userGroupService.getUserGroups(user.getId()));
+        return userGroupService.getUserGroups(user.getId());
     }
 }

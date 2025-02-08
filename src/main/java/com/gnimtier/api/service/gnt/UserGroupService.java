@@ -31,26 +31,19 @@ public class UserGroupService {
         return userGroupDtoList;
     }
 
-    public Map<String, List<UserGroupResponseDto>> getUserGroups(String userId) {
-        Map<String, List<UserGroupResponseDto>> userGroups = new HashMap<>();
-        userGroups.put("groups", new ArrayList<>());
+    public List<UserGroupDto> getUserGroups(String userId) {
+        List<UserGroupDto> userGroups = new ArrayList<>();
         if (userGroupAssociationRepository
                 .findAllByUserId(userId)
                 .isEmpty()) {
-            return Map.of("groups", new ArrayList<>());
+            return new ArrayList<>();
         }
         userGroupAssociationRepository
                 .findAllByUserId(userId)
                 .forEach(userGroupAssociation -> {
                     String groupId = userGroupAssociation.getGroupId();
                     UserGroup userGroup = userGroupRepository.findById(groupId);
-                    UserGroupResponseDto userGroupResponseDto = new UserGroupResponseDto();
-                    userGroupResponseDto.setId(userGroup.getId());
-                    userGroupResponseDto.setName(userGroup.getName());
-                    userGroupResponseDto.setDescription(userGroup.getDescription());
-                    userGroups
-                            .get("groups")
-                            .add(userGroupResponseDto);
+                    userGroups.add(userGroup.toDto());
                 });
         return userGroups;
     }

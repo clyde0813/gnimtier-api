@@ -36,7 +36,10 @@ public class UserGroup {
     @Column(name = "is_root")
     private boolean isRoot;
 
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", nullable = true)
     private LocalDateTime updatedAt;
 
     public UserGroupDto toDto() {
