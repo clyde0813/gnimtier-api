@@ -54,7 +54,8 @@ public class AuthService {
 
     public Map<String, String> refreshToken(String refreshToken) {
         try {
-            Claims claims = jwtUtil.getTokenPayload(refreshToken);
+            // refresh token - Bearer 제거후 payload 확인
+            Claims claims = jwtUtil.getTokenPayload(jwtUtil.resolveToken(refreshToken));
             if (!"refresh".equals(claims.get("tokenType"))) {
                 LOGGER.error("[getUserFromToken] Token tokenType mismatch");
                 throw new CustomException("tokenType Error", HttpStatus.BAD_REQUEST);

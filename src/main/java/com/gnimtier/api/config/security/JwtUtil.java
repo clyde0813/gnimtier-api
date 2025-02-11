@@ -40,7 +40,8 @@ public class JwtUtil {
     }
 
 
-    public static String resolveToken(String bearerToken) {
+    // static method -> instance method (resloveToken을 사용할 클래스에서는 어차피 JwtUtil 객체를 생성해야함)
+    public String resolveToken(String bearerToken) {
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         } else {

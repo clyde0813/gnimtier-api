@@ -16,10 +16,9 @@ public class AuthController {
     // 토큰 Refresh
     @GetMapping("/refresh")
     public ResponseEntity<?> refresh(
-            @RequestHeader(value = "Refresh", required = false) String refreshToken
+            @RequestHeader(value = "refresh", required = false) String refreshToken
     ) {
-        String bearerToken = refreshToken;
-        return ResponseEntity.ok(authService.refreshToken(bearerToken));
+        return ResponseEntity.ok(authService.refreshToken(refreshToken));
     }
 
     // 토큰 검증
