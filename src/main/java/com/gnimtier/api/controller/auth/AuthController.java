@@ -29,25 +29,4 @@ public class AuthController {
         jwtUtil.validateToken(token);
         return ResponseEntity.ok(true);
     }
-
-    // 회원가입
-//    @PostMapping("/signup")
-//    public ResponseEntity<?> register(@RequestBody SignUpDto signUpDto) {
-//        authService.signUp(signUpDto);
-//        return ResponseEntity.ok("User registered successfully");
-//    }
-
-    // 로그인
-//    @PostMapping("/login")
-//    public ResponseEntity<?> login(@RequestBody LoginDto loginDto) {
-//        return ResponseEntity.ok(authService.login(loginDto));
-//    }
-
-//    // 토큰 - 사용자 추출
-//    @GetMapping("/token")
-//    public ResponseEntity<?> getUser(
-//            @RequestParam String token
-//    ) {
-//        return ResponseEntity.ok(authService.getUserByAccessToken(token));
-//    }
 }

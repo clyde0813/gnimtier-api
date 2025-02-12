@@ -19,38 +19,10 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    private final UserRepository userRepository;
     private final UserService userService;
     private final JwtUtil jwtUtil;
 
     private final Logger LOGGER = LoggerFactory.getLogger(AuthService.class);
-
-//    public Boolean signUp(SignUpDto signUpDto) {
-//        String encodedPassword = passwordEncoderService.encode(signUpDto.getPassword());
-//        User user = new User();
-//        user.setUsername(signUpDto.getUsername());
-//        user.setPassword(encodedPassword);
-//        userRepository.save(user);
-//        return true;
-//    }
-
-//    public Map<String, String> login(LoginDto loginDto) {
-//        String username = loginDto.getUsername();
-//        String password = loginDto.getPassword();
-//        Optional<User> user = userRepository.findByUsername(username);
-//        if (user.isEmpty() || !passwordEncoderService.matches(password, user
-//                .get()
-//                .getPassword())) {
-//            throw new CustomException("Invalid username or password", HttpStatus.UNAUTHORIZED);
-//        }
-//        String accessToken = jwtUtil.generateAccessToken(user
-//                .get()
-//                .getId());
-//        String refreshToken = jwtUtil.generateRefreshToken(user
-//                .get()
-//                .getId());
-//        return Map.of("access_token", accessToken, "refresh_token", refreshToken);
-//    }
 
     public Map<String, String> refreshToken(String refreshToken) {
         try {
@@ -66,11 +38,6 @@ public class AuthService {
         } catch (Exception e) {
             throw new CustomException("Invalid refresh token", HttpStatus.UNAUTHORIZED);
         }
-    }
-
-    // 로그인(토큰 유효성) 검사
-    public String isTokenValid(String token) {
-        return jwtUtil.validateToken(token);
     }
 
     public User getUserFromAuthentication() {

@@ -12,9 +12,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -30,10 +28,6 @@ import java.util.List;
 @Profile({"prod-dev", "dev"})
 public class DevSecurityConfig {
     private final JwtUtil jwtUtil;
-
-    private final AuthenticationEntryPoint customAuthenticationEntryPoint;
-
-    private final AccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -61,12 +55,6 @@ public class DevSecurityConfig {
                 .authenticated());
 
         http.addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
-
-        // security exception
-//        http.exceptionHandling(exception -> exception
-//                .authenticationEntryPoint(customAuthenticationEntryPoint)
-//                .accessDeniedHandler(customAccessDeniedHandler)
-//        );
 
         return http.build();
     }

@@ -41,11 +41,9 @@ public class KakaoOauthService {
         LOGGER.info("[getUserInfoAndReturnToken] - userPresent : {}", userOauth.isPresent());
         if (userOauth.isEmpty()) {
             User newUser = new User();
-//            newUser.setUsername(id4kakao);
             newUser.setNickname(userInfo.kakaoAccount.profile.nickName);
             newUser.setProfileImageUrl(userInfo.kakaoAccount.profile.profileImageUrl);
             newUser.setCreatedAt(LocalDateTime.now());
-//            newUser.setPassword(passwordEncoderService.encode(id4kakao + System.currentTimeMillis()));
             userRepository.save(newUser);
             UserOauth newUserOauth = new UserOauth();
             newUserOauth.setId(id4kakao);
