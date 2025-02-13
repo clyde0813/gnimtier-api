@@ -64,4 +64,19 @@ class AuthServiceTest {
         assertEquals("Invalid refresh token", exception.getMessage());
         assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatus());
     }
+
+    @Test
+    @DisplayName("AuthService - 토큰 갱신 (invalid token type)")
+    void refreshTokenWithInvalidTokenType() {
+        String refreshToken = "invalidTokenType";
+        Claims claims = mock(Claims.class);
+        when(jwtUtil.resolveToken(refreshToken)).thenReturn(refreshToken);
+        when(jwtUtil.getTokenPayload(refreshToken)).thenReturn(claims);
+        when(claims.get("tokenType")).thenReturn("access");
+
+        CustomException exception = assertThrows(CustomException.class, () -> authService.refreshToken(refreshToken));
+
+        assertEquals("tokenType Error", exception.getMessage());
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    }
 }

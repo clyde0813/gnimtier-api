@@ -35,6 +35,8 @@ public class AuthService {
             String newAccessToken = jwtUtil.generateAccessToken(claims.getSubject());
             String newRefreshToken = jwtUtil.generateRefreshToken(claims.getSubject());
             return Map.of("access_token", newAccessToken, "refresh_token", newRefreshToken);
+        } catch (CustomException e) {
+            throw new CustomException(e.getMessage(), e.getStatus());
         } catch (Exception e) {
             throw new CustomException("Invalid refresh token", HttpStatus.UNAUTHORIZED);
         }
