@@ -1,9 +1,12 @@
 package com.gnimtier.api.service.auth;
 
+import com.gnimtier.api.config.security.JwtAuthentication;
 import com.gnimtier.api.config.security.JwtUtil;
+import com.gnimtier.api.data.entity.auth.User;
 import com.gnimtier.api.exception.CustomException;
 import com.gnimtier.api.service.gnt.UserService;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwt;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Map;
 
@@ -78,5 +82,83 @@ class AuthServiceTest {
 
         assertEquals("tokenType Error", exception.getMessage());
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    }
+
+    @Test
+    @DisplayName("AuthService - get User from authentication (valid authentication)")
+    void getUserFromAuthenticationWithValidAuthentication() {
+        JwtAuthentication jwtAuthentication = mock(JwtAuthentication.class);
+        SecurityContextHolder
+                .getContext()
+                .setAuthentication(jwtAuthentication);
+        when(jwtAuthentication.getPrincipal()).thenReturn("userId");
+
+        User user = new User();
+        user.setId("userId");
+        when(userService.getUserByUserId("userId")).thenReturn(user);
+
+        User authenticationUser = authService.getUserFromAuthentication();
+
+        assertEquals(user, authenticationUser);
+    }
+
+    @Test
+    @DisplayName("AuthService - get User from authentication (Invalid authentication)")
+    void getUserFromAuthenticationWithInvalidAuthentication() {
+        SecurityContextHolder
+                .getContext()
+                .setAuthentication(null);
+
+        CustomException exception = assertThrows(CustomException.class, () -> authService.getUserFromAuthentication());
+
+        assertEquals("Invalid authentication", exception.getMessage());
+        assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatus());
+    }
+
+    @Test
+    @DisplayName("AuthService - get User from authentication (Blank UserId)")
+    void getUserFromAuthenticationWithBlankUserIdAuthentication() {
+        JwtAuthentication jwtAuthentication = mock(JwtAuthentication.class);
+        SecurityContextHolder
+                .getContext()
+                .setAuthentication(jwtAuthentication);
+        when(jwtAuthentication.getPrincipal()).thenReturn("");
+
+        CustomException exception = assertThrows(CustomException.class, () -> authService.getUserFromAuthentication());
+
+        assertEquals("Invalid authentication", exception.getMessage());
+        assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatus());
+    }
+
+    @Test
+    @DisplayName("AuthService - get User from authentication (Null UserId)")
+    void getUserFromAuthenticationWithNullUserIdAuthentication() {
+        JwtAuthentication jwtAuthentication = mock(JwtAuthentication.class);
+        SecurityContextHolder
+                .getContext()
+                .setAuthentication(jwtAuthentication);
+        when(jwtAuthentication.getPrincipal()).thenReturn(null);
+
+        CustomException exception = assertThrows(CustomException.class, () -> authService.getUserFromAuthentication());
+
+        assertEquals("Invalid authentication", exception.getMessage());
+        assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatus());
+    }
+
+    @Test
+    @DisplayName("AuthService - get User from authentication (User not found)")
+    void getUserFromAuthenticationWithUserNotFound() {
+        JwtAuthentication jwtAuthentication = mock(JwtAuthentication.class);
+        SecurityContextHolder
+                .getContext()
+                .setAuthentication(jwtAuthentication);
+        when(jwtAuthentication.getPrincipal()).thenReturn("userId");
+
+        when(userService.getUserByUserId("userId")).thenReturn(null);
+
+        CustomException exception = assertThrows(CustomException.class, () -> authService.getUserFromAuthentication());
+
+        assertEquals("User not found", exception.getMessage());
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
     }
 }
