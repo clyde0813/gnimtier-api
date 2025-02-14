@@ -82,7 +82,7 @@ class KakaoOauthServiceTest {
     @DisplayName("KakaoOauthService - get User Info and Return Token (신규 가입)")
     void getUserInfoAndReturnToken_newUser() {
         String accessToken = "accessToken";
-        KakaoUserInfoResponseDto kakaoUserInfo = getKakaoUserInfoResponseDto();
+        KakaoUserInfoResponseDto kakaoUserInfo = getKakaoUserInfoResponseDto(12345L);
         String id4kakao = "kakao" + kakaoUserInfo.getId();
         when(kakaoOauthClient.getUserInfo(accessToken)).thenReturn(kakaoUserInfo);
 
@@ -109,12 +109,42 @@ class KakaoOauthServiceTest {
         assertEquals("refreshToken", result.get("refresh_token"));
     }
 
-    private static KakaoUserInfoResponseDto getKakaoUserInfoResponseDto() {
+    @Test
+    @DisplayName("KakaoOauthService - get User Info and Return Token (기존 가입)")
+    void getUserInfoAndReturnToken_existingUser() {
+        String accessToken = "accessToken";
+        KakaoUserInfoResponseDto kakaoUserInfo = getKakaoUserInfoResponseDto(12345L);
+        String id4kakao = "kakao" + kakaoUserInfo.getId();
+        when(kakaoOauthClient.getUserInfo(accessToken)).thenReturn(kakaoUserInfo);
+
+//        User user = new User();
+//        user.setId("userId");
+//        user.setNickname(kakaoUserInfo.kakaoAccount.profile.nickName);
+//        user.setProfileImageUrl(kakaoUserInfo.kakaoAccount.profile.profileImageUrl);
+//        user.setCreatedAt(LocalDateTime.now());
+//        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+        UserOauth userOauth = new UserOauth();
+        userOauth.setId(id4kakao);
+        userOauth.setUserId("userId");
+        userOauth.setProvider("kakao");
+        when(userOauthRepository.findById(id4kakao)).thenReturn(Optional.of(userOauth));
+
+        when(jwtUtil.generateAccessToken("userId")).thenReturn("accessToken");
+        when(jwtUtil.generateRefreshToken("userId")).thenReturn("refreshToken");
+
+        Map<String, String> result = kakaoOauthService.getUserInfoAndReturnToken(accessToken);
+
+        assertEquals("accessToken", result.get("access_token"));
+        assertEquals("refreshToken", result.get("refresh_token"));
+    }
+
+    private static KakaoUserInfoResponseDto getKakaoUserInfoResponseDto(Long kakaoId) {
         KakaoUserInfoResponseDto kakaoUserInfo = new KakaoUserInfoResponseDto();
         KakaoUserInfoResponseDto.KakaoAccount kakaoAccount = new KakaoUserInfoResponseDto.KakaoAccount();
         KakaoUserInfoResponseDto.KakaoAccount.Profile profile = new KakaoUserInfoResponseDto.KakaoAccount.Profile();
 
-        kakaoUserInfo.setId(12345L);
+        kakaoUserInfo.setId(kakaoId);
 
         profile.setNickName("nickname");
         profile.setProfileImageUrl("profileImageUrl");
