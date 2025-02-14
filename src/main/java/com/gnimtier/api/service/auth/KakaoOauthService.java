@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
@@ -39,33 +40,28 @@ public class KakaoOauthService {
         String id4kakao = "kakao" + userInfo.id;
         Optional<UserOauth> userOauth = userOauthRepository.findById(id4kakao);
         LOGGER.info("[getUserInfoAndReturnToken] - userPresent : {}", userOauth.isPresent());
+        // 신규 가입
         if (userOauth.isEmpty()) {
+            LOGGER.info("[getUserInfoAndReturnToken] - create new user : {}", id4kakao);
             User newUser = new User();
             newUser.setNickname(userInfo.kakaoAccount.profile.nickName);
             newUser.setProfileImageUrl(userInfo.kakaoAccount.profile.profileImageUrl);
             newUser.setCreatedAt(LocalDateTime.now());
-            userRepository.save(newUser);
+            // UserOauth에 넣을 id 떄문에 새로운 객체로 재할당
+            User user = userRepository.save(newUser);
+            LOGGER.info("[getUserInfoAndReturnToken] - new user id : {}", user.getId());
             UserOauth newUserOauth = new UserOauth();
             newUserOauth.setId(id4kakao);
-            newUserOauth.setUserId(newUser.getId());
+            newUserOauth.setUserId(user.getId());
             newUserOauth.setProvider("kakao");
             userOauthRepository.save(newUserOauth);
-        }
-        if (userOauthRepository
-                .findById(id4kakao)
-                .isPresent() && userRepository
-                .findById(userOauthRepository
-                        .findById(id4kakao)
-                        .get()
-                        .getUserId())
-                .isPresent()) {
-            String userId = userOauthRepository
-                    .findById(id4kakao)
+            return Map.of("access_token", jwtUtil.generateAccessToken(user.getId()), "refresh_token", jwtUtil.generateRefreshToken(user.getId()));
+        } else {
+            // 기존 회원
+            String userId = userOauth
                     .get()
                     .getUserId();
             return Map.of("access_token", jwtUtil.generateAccessToken(userId), "refresh_token", jwtUtil.generateRefreshToken(userId));
-        } else {
-            throw new CustomException("User not found with Oauth ID : " + id4kakao, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
