@@ -28,13 +28,13 @@ public class UserGroup {
     private String description;
 
     @Column(name = "is_official")
-    private boolean isOfficial;
+    private boolean official;
 
     @Column(name = "parent_id")
     private String parentId;
 
     @Column(name = "is_root")
-    private boolean isRoot;
+    private boolean root;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -49,7 +49,7 @@ public class UserGroup {
                 .name(name)
                 .description(description)
                 .parentId(parentId)
-                .isRoot(isRoot)
+                .isRoot(root)
                 .build();
     }
 }
