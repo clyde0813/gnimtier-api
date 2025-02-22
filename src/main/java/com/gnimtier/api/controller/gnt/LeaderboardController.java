@@ -1,5 +1,6 @@
 package com.gnimtier.api.controller.gnt;
 
+import com.gnimtier.api.data.dto.DataDto;
 import com.gnimtier.api.data.dto.riot.client.Response.PageableResponseDto;
 import com.gnimtier.api.data.dto.riot.client.Response.RiotUserResponseDto;
 import com.gnimtier.api.data.dto.riot.internal.LeaderboardParamDto;
@@ -17,9 +18,9 @@ public class LeaderboardController {
 
 
     @GetMapping("/by-group")
-    public PageableResponseDto<RiotUserResponseDto> getLeaderboard(
+    public DataDto<PageableResponseDto<RiotUserResponseDto>> getLeaderboard(
            LeaderboardParamDto leaderboardParamDto
     ) {
-        return leaderboardService.getLeaderboard(leaderboardParamDto);
+        return new DataDto<>(leaderboardService.getLeaderboard(leaderboardParamDto));
     }
 }

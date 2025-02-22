@@ -46,7 +46,7 @@ public class AuthService {
     public User getUserFromAuthentication() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication == null || !(authentication instanceof JwtAuthentication jwtAuthentication)) {
+        if (!(authentication instanceof JwtAuthentication jwtAuthentication)) {
             throw new CustomException("Invalid authentication", HttpStatus.UNAUTHORIZED);
         }
 

@@ -1,5 +1,6 @@
 package com.gnimtier.api.controller.gnt;
 
+import com.gnimtier.api.data.dto.DataDto;
 import com.gnimtier.api.data.dto.gnt.UserDto;
 import com.gnimtier.api.data.dto.gnt.UserGroupDto;
 import com.gnimtier.api.data.dto.gnt.UserGroupResponseDto;
@@ -30,17 +31,18 @@ public class UserController {
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<UserDto> getMe() {
+    public DataDto<UserDto> getMe() {
         LOGGER.info("[UserController.getMe()] called");
         User user = authService.getUserFromAuthentication();
-        return ResponseEntity.ok(user.getUserDto());
+        return new DataDto<>(user.getUserDto());
+//        return ResponseEntity.ok(user.getUserDto());
     }
 
     @GetMapping("/groups")
     @PreAuthorize("isAuthenticated()")
-    public List<UserGroupDto> getGroups() {
+    public DataDto<List<UserGroupDto>> getGroups() {
         LOGGER.info("[UserGroupController.getGroups()] Get groups");
         User user = authService.getUserFromAuthentication();
-        return userGroupService.getUserGroups(user.getId());
+        return new DataDto<>(userGroupService.getUserGroups(user.getId()));
     }
 }
