@@ -17,11 +17,6 @@ public class PageableResponseDto<T> {
     private int pageSize;
     private int page;
 
-    // tmp
-    private int totalPages;
-    //tmp
-    private long totalElements;
-
     private Boolean hasNext;
     private Boolean hasPrevious;
 }

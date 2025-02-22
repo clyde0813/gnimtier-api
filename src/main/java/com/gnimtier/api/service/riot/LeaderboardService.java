@@ -76,8 +76,6 @@ public class LeaderboardService {
         riotLeaderboardResponseDto.setData(riotUserResponseDtoList);
         riotLeaderboardResponseDto.setPage(leaderboardParamDto.getPage());
         riotLeaderboardResponseDto.setPageSize(5);
-        riotLeaderboardResponseDto.setTotalPages(summonerResponseDtoList.getTotalPages());
-        riotLeaderboardResponseDto.setTotalElements(summonerResponseDtoList.getTotalElements());
         riotLeaderboardResponseDto.setHasNext(summonerResponseDtoList.getHasNext());
         riotLeaderboardResponseDto.setHasPrevious(summonerResponseDtoList.getHasPrevious());
         return riotLeaderboardResponseDto;
