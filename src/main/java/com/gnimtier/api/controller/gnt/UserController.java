@@ -4,6 +4,7 @@ import com.gnimtier.api.data.dto.DataDto;
 import com.gnimtier.api.data.dto.gnt.UserDto;
 import com.gnimtier.api.data.dto.gnt.UserGroupDto;
 import com.gnimtier.api.data.dto.gnt.UserGroupResponseDto;
+import com.gnimtier.api.data.dto.riot.internal.response.SummonerResponseDto;
 import com.gnimtier.api.data.entity.auth.User;
 import com.gnimtier.api.repository.UserRepository;
 import com.gnimtier.api.service.auth.AuthService;
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -45,4 +47,14 @@ public class UserController {
         User user = authService.getUserFromAuthentication();
         return new DataDto<>(userGroupService.getUserGroups(user.getId()));
     }
+
+//    @PostMapping("/riot/account")
+//    @PreAuthorize("isAuthenticated()")
+//    public DataDto<Map<String, SummonerResponseDto>> registerRiotAccount(
+//
+//    ) {
+//        LOGGER.info("[UserController.registerRiotAccount()] called");
+//        User user = authService.getUserFromAuthentication();
+//        return new DataDto<>("success", null);
+//    }
 }

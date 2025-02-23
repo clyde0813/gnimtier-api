@@ -4,7 +4,6 @@ import lombok.Data;
 
 @Data
 public class LeaderboardParamDto {
-    private String gameName;
     private String groupId;
     private String sortBy;
     private int page;

@@ -1,10 +1,10 @@
-package com.gnimtier.api.controller.gnt;
+package com.gnimtier.api.controller.riot.tft;
 
 import com.gnimtier.api.data.dto.DataDto;
 import com.gnimtier.api.data.dto.riot.client.Response.PageableResponseDto;
 import com.gnimtier.api.data.dto.riot.client.Response.RiotUserResponseDto;
 import com.gnimtier.api.data.dto.riot.internal.LeaderboardParamDto;
-import com.gnimtier.api.service.riot.LeaderboardService;
+import com.gnimtier.api.service.riot.tft.LeaderboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/leaderboard")
+@RequestMapping("/riot/tft/leaderboard")
 public class LeaderboardController {
     private final LeaderboardService leaderboardService;
 

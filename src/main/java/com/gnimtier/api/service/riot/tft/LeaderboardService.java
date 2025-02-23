@@ -1,4 +1,4 @@
-package com.gnimtier.api.service.riot;
+package com.gnimtier.api.service.riot.tft;
 
 import com.gnimtier.api.client.riot.RiotApiClient;
 import com.gnimtier.api.data.dto.riot.client.Response.PageableResponseDto;
@@ -26,9 +26,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class LeaderboardService {
-    private final UserRepository userRepository;
     private final UserPuuidRepository userPuuidRepository;
-    private final UserGroupRepository userGroupRepository;
     private final UserGroupAssociationRepository userGroupAssociationRepository;
 
     private final RiotApiClient tftApiClient;
@@ -74,8 +72,8 @@ public class LeaderboardService {
                     riotUserResponseDtoList.add(tftUserResponseDto);
                 });
         riotLeaderboardResponseDto.setData(riotUserResponseDtoList);
-        riotLeaderboardResponseDto.setPage(leaderboardParamDto.getPage());
-        riotLeaderboardResponseDto.setPageSize(5);
+        riotLeaderboardResponseDto.setPage(summonerResponseDtoList.getPage());
+        riotLeaderboardResponseDto.setPageSize(summonerResponseDtoList.getPageSize());
         riotLeaderboardResponseDto.setHasNext(summonerResponseDtoList.getHasNext());
         riotLeaderboardResponseDto.setHasPrevious(summonerResponseDtoList.getHasPrevious());
         return riotLeaderboardResponseDto;
