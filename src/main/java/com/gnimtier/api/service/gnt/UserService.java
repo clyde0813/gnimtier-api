@@ -37,26 +37,22 @@ public class UserService {
     }
 
     public void registerRiotAccount(User user, String puuid) {
-        // 1인 1계정 등록 로직
-        if (userPuuidRepository
-                .findByUserId(user.getId())
-                .isPresent()) {
-            LOGGER.error("[UserService.registerRiotAccount()] User already has an account registered");
+        boolean userExists = userPuuidRepository.existsByUserId(user.getId());
+        boolean puuidExists = userPuuidRepository.existsByPuuid(puuid);
+
+        // 1인 1계정 운영방침
+        if (userExists) {
             throw new CustomException("이미 등록된 계정이 있습니다.", HttpStatus.BAD_REQUEST);
         }
-        // 중복 등록 방지 로직
-        if (userPuuidRepository
-                .findByPuuid(puuid)
-                .isPresent()) {
-            LOGGER.error("[UserService.registerRiotAccount()] Puuid already registered");
+        // 중복 등록 방지
+        if (puuidExists) {
             throw new CustomException("이미 등록된 계정입니다.", HttpStatus.BAD_REQUEST);
         }
-        // 등록되지 않았을 경우 등록 진행
+
+        // summonerResponseDto from gnt-riot-api
         SummonerResponseDto summonerResponseDto = summonerService.getSummoner(puuid, false);
-        UserPuuid userPuuid = new UserPuuid();
-        userPuuid.setPuuid(summonerResponseDto.getPuuid());
-        userPuuid.setUserId(user.getId());
+        // UserPuuid Object -> DB
+        UserPuuid userPuuid = new UserPuuid(user.getId(), summonerResponseDto.getPuuid());
         userPuuidRepository.save(userPuuid);
-        LOGGER.info("[UserService.registerRiotAccount()] Riot account registered");
     }
 }
