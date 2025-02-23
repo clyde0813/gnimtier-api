@@ -1,4 +1,4 @@
-package com.gnimtier.api.data.dto;
+package com.gnimtier.api.data.dto.basic;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

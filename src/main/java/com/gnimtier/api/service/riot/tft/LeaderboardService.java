@@ -61,6 +61,7 @@ public class LeaderboardService {
                 .forEach(responseDto -> {
                     String userId = userPuuidRepository
                             .findByPuuid(responseDto.getPuuid())
+                            .get()
                             .getUserId();
                     User user;
                     try {

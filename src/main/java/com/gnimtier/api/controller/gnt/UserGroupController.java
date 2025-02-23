@@ -1,6 +1,6 @@
 package com.gnimtier.api.controller.gnt;
 
-import com.gnimtier.api.data.dto.DataDto;
+import com.gnimtier.api.data.dto.basic.DataDto;
 import com.gnimtier.api.data.dto.gnt.UserGroupDto;
 import com.gnimtier.api.service.gnt.UserGroupService;
 import lombok.RequiredArgsConstructor;

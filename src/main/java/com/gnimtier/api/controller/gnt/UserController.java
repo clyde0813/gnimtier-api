@@ -1,25 +1,23 @@
 package com.gnimtier.api.controller.gnt;
 
-import com.gnimtier.api.data.dto.DataDto;
+import com.gnimtier.api.data.dto.basic.DataDto;
+import com.gnimtier.api.data.dto.basic.StatusDto;
 import com.gnimtier.api.data.dto.gnt.UserDto;
 import com.gnimtier.api.data.dto.gnt.UserGroupDto;
-import com.gnimtier.api.data.dto.gnt.UserGroupResponseDto;
 import com.gnimtier.api.data.dto.riot.internal.response.SummonerResponseDto;
 import com.gnimtier.api.data.entity.auth.User;
-import com.gnimtier.api.repository.UserRepository;
 import com.gnimtier.api.service.auth.AuthService;
 import com.gnimtier.api.service.gnt.UserGroupService;
 import com.gnimtier.api.service.gnt.UserService;
+import com.gnimtier.api.service.riot.tft.SummonerService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +28,8 @@ public class UserController {
     private final AuthService authService;
     private final UserGroupService userGroupService;
     private final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
+    private final UserService userService;
+    private final SummonerService summonerService;
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
@@ -48,13 +48,22 @@ public class UserController {
         return new DataDto<>(userGroupService.getUserGroups(user.getId()));
     }
 
-//    @PostMapping("/riot/account")
-//    @PreAuthorize("isAuthenticated()")
-//    public DataDto<Map<String, SummonerResponseDto>> registerRiotAccount(
-//
-//    ) {
-//        LOGGER.info("[UserController.registerRiotAccount()] called");
-//        User user = authService.getUserFromAuthentication();
-//        return new DataDto<>("success", null);
-//    }
+    @GetMapping("/riot/account")
+    @PreAuthorize("isAuthenticated()")
+    public DataDto<Map<String, SummonerResponseDto>> getRiotAccount() {
+        LOGGER.info("[UserController.getRiotAccount()] called");
+        User user = authService.getUserFromAuthentication();
+        return new DataDto<>(Map.of("summoner", userService.getRiotAccount(user)));
+    }
+
+    @PostMapping("/riot/account")
+    @PreAuthorize("isAuthenticated()")
+    public StatusDto registerRiotAccount(
+            @RequestParam(value = "puuid", required = true) String puuid
+    ) {
+        LOGGER.info("[UserController.registerRiotAccount()] called");
+        User user = authService.getUserFromAuthentication();
+        userService.registerRiotAccount(user, puuid);
+        return new StatusDto(HttpStatus.ACCEPTED, "Riot account registered", LocalDateTime.now());
+    }
 }
