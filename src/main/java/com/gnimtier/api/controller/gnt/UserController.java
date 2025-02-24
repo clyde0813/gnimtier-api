@@ -44,10 +44,10 @@ public class UserController {
     // 가입된 그룹 조회
     @GetMapping("/groups")
     @PreAuthorize("isAuthenticated()")
-    public DataDto<List<UserGroupDto>> getGroups() {
+    public DataDto<Map<String, List<UserGroupDto>>> getGroups() {
         LOGGER.info("[UserGroupController.getGroups()] Get groups");
         User user = authService.getUserFromAuthentication();
-        return new DataDto<>(userGroupService.getUserGroups(user.getId()));
+        return new DataDto<>(Map.of("groups", userGroupService.getUserGroups(user.getId())));
     }
 
     // 그룹 가입
