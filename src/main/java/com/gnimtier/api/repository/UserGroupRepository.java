@@ -11,4 +11,6 @@ public interface UserGroupRepository extends JpaRepository<UserGroup, Integer> {
     UserGroup findById(String id);
 
     List<UserGroup> findAllByParentId(String parentId);
+
+    Boolean existsUserGroupById(String id);
 }

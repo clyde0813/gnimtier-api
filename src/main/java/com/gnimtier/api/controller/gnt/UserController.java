@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -31,15 +32,16 @@ public class UserController {
     private final UserService userService;
     private final SummonerService summonerService;
 
+    // 내 정보 조희
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
     public DataDto<UserDto> getMe() {
         LOGGER.info("[UserController.getMe()] called");
         User user = authService.getUserFromAuthentication();
         return new DataDto<>(user.getUserDto());
-//        return ResponseEntity.ok(user.getUserDto());
     }
 
+    // 가입된 그룹 조회
     @GetMapping("/groups")
     @PreAuthorize("isAuthenticated()")
     public DataDto<List<UserGroupDto>> getGroups() {
@@ -48,6 +50,31 @@ public class UserController {
         return new DataDto<>(userGroupService.getUserGroups(user.getId()));
     }
 
+    // 그룹 가입
+    @PostMapping("/groups")
+    @PreAuthorize("isAuthenticated()")
+    public StatusDto joinGroup(
+            @RequestParam(value = "groupId", required = true) String groupId
+    ) {
+        LOGGER.info("[UserGroupController.joinGroup()] Join group");
+        User user = authService.getUserFromAuthentication();
+        userGroupService.joinGroup(user, groupId);
+        return new StatusDto(HttpStatus.ACCEPTED, "Group joined", LocalDateTime.now());
+    }
+
+    // 그룹 탈퇴
+    @DeleteMapping("/groups")
+    @PreAuthorize("isAuthenticated()")
+    public StatusDto leaveGroup(
+            @RequestParam(value = "groupId", required = true) String groupId
+    ) {
+        LOGGER.info("[UserGroupController.leaveGroup()] Leave group");
+        User user = authService.getUserFromAuthentication();
+        userGroupService.leaveGroup(user, groupId);
+        return new StatusDto(HttpStatus.ACCEPTED, "Group left", LocalDateTime.now());
+    }
+
+    // 내 라이엇 계정 조회
     @GetMapping("/riot/account")
     @PreAuthorize("isAuthenticated()")
     public DataDto<Map<String, SummonerResponseDto>> getRiotAccount() {
@@ -56,6 +83,7 @@ public class UserController {
         return new DataDto<>(Map.of("summoner", userService.getRiotAccount(user)));
     }
 
+    // 라이엇 계정 등록
     @PostMapping("/riot/account")
     @PreAuthorize("isAuthenticated()")
     public StatusDto registerRiotAccount(
