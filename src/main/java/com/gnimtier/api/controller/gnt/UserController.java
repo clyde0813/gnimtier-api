@@ -9,13 +9,12 @@ import com.gnimtier.api.data.entity.auth.User;
 import com.gnimtier.api.service.auth.AuthService;
 import com.gnimtier.api.service.gnt.UserGroupService;
 import com.gnimtier.api.service.gnt.UserService;
-import com.gnimtier.api.service.riot.tft.SummonerService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -30,24 +29,23 @@ public class UserController {
     private final UserGroupService userGroupService;
     private final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
-    private final SummonerService summonerService;
 
     // 내 정보 조희
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public DataDto<UserDto> getMe() {
+    public ResponseEntity<DataDto<Map<String, UserDto>>> getMe() {
         LOGGER.info("[UserController.getMe()] called");
         User user = authService.getUserFromAuthentication();
-        return new DataDto<>(user.getUserDto());
+        return ResponseEntity.ok(new DataDto<>(Map.of("user", user.getUserDto())));
     }
 
     // 가입된 그룹 조회
     @GetMapping("/groups")
     @PreAuthorize("isAuthenticated()")
-    public DataDto<Map<String, List<UserGroupDto>>> getGroups() {
+    public ResponseEntity<DataDto<Map<String, List<UserGroupDto>>>> getGroups() {
         LOGGER.info("[UserGroupController.getGroups()] Get groups");
         User user = authService.getUserFromAuthentication();
-        return new DataDto<>(Map.of("groups", userGroupService.getUserGroups(user.getId())));
+        return ResponseEntity.ok(new DataDto<>(Map.of("groups", userGroupService.getUserGroups(user.getId()))));
     }
 
     // 그룹 가입
