@@ -30,7 +30,6 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
                 "message", "Unauthorized",                           // 에러 메시지
                 "status", HttpStatus.UNAUTHORIZED.value()               // HTTP 상태 코드
         );
-        ObjectMapper objectMapper = new ObjectMapper();
         String jsonResponse = objectMapper.writeValueAsString(errorDetails);
 
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
