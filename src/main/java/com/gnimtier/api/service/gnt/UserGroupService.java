@@ -1,7 +1,6 @@
 package com.gnimtier.api.service.gnt;
 
 import com.gnimtier.api.data.dto.gnt.UserGroupDto;
-import com.gnimtier.api.data.dto.gnt.UserGroupResponseDto;
 import com.gnimtier.api.data.entity.auth.User;
 import com.gnimtier.api.data.entity.gnt.UserGroup;
 import com.gnimtier.api.data.entity.gnt.UserGroupAssociation;
@@ -17,9 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
