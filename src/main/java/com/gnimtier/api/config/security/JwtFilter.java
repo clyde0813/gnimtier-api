@@ -38,36 +38,47 @@ public class JwtFilter extends OncePerRequestFilter {
             FilterChain chain
     ) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || authHeader.isBlank()) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         //토큰 있을때만, 조건문 없으면 토큰 없으면 무조건 invalid token 에러
-        if (authHeader != null) {
-            try {
-                String token = jwtUtil.resolveToken(request.getHeader("Authorization"));
-                LOGGER.info("[getTokenPayload] Token : {}", token);
-                Jws<Claims> claimsJws = Jwts
-                        .parser()
-                        .verifyWith(jwtUtil.getSecretKey())
-                        .build()
-                        .parseSignedClaims(token);
-                LOGGER.info("[getTokenPayload] Token payload : {}", claimsJws.getPayload());
-                Claims claims = claimsJws.getPayload();
-                String userId = claims.getSubject();
-                if (userId != null) {
-                    SecurityContextHolder
-                            .getContext()
-                            .setAuthentication(new JwtAuthentication(claims.getSubject()));
-                }
-            } catch (ExpiredJwtException e) {
-                handleException(response, "Token Expired", HttpStatus.UNAUTHORIZED);
-                return;
-            } catch (AuthorizationDeniedException e) {
-                handleException(response, "Unauthorized", HttpStatus.UNAUTHORIZED);
-                return;
-            } catch (Exception e) {
+        try {
+            String token = jwtUtil.resolveToken(request.getHeader("Authorization"));
+            LOGGER.info("[getTokenPayload] Token : {}", token);
+            Jws<Claims> claimsJws = Jwts
+                    .parser()
+                    .verifyWith(jwtUtil.getSecretKey())
+                    .build()
+                    .parseSignedClaims(token);
+            LOGGER.info("[getTokenPayload] Token payload : {}", claimsJws.getPayload());
+            Claims claims = claimsJws.getPayload();
+            if (!claims.get("tokenType").equals("access")) {
                 handleException(response, "Invalid Token", HttpStatus.UNAUTHORIZED);
                 return;
             }
+            String userId = claims.getSubject();
+            if (userId != null) {
+                SecurityContextHolder
+                        .getContext()
+                        .setAuthentication(new JwtAuthentication(claims.getSubject()));
+            }
+        } catch (ExpiredJwtException e) {
+            handleException(response, "Token Expired", HttpStatus.UNAUTHORIZED);
+            return;
+        } catch (AuthorizationDeniedException e) {
+            handleException(response, "Unauthorized", HttpStatus.UNAUTHORIZED);
+            return;
+        } catch (Exception e) {
+            handleException(response, "Invalid Token", HttpStatus.UNAUTHORIZED);
+            return;
         }
-        chain.doFilter(request, response);
+        try {
+            chain.doFilter(request, response);
+        } catch (Exception e) {
+            handleException(response, "Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     private void handleException(HttpServletResponse response, String message, HttpStatus status) throws IOException {

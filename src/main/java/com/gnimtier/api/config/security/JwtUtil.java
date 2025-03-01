@@ -1,7 +1,6 @@
 package com.gnimtier.api.config.security;
 
 import com.gnimtier.api.exception.CustomException;
-import com.gnimtier.api.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
@@ -24,19 +23,17 @@ public class JwtUtil {
     private final SecretKey SECRET_KEY;
     private final long ACCESS_TOKEN_EXPIRATION_TIME;
     private final long REFRESH_TOKEN_EXPIRATION_TIME;
-    private final UserRepository userRepository;
 
     //static 으로 만들고자 하였으나, @Value 어노테이션은 static 변수에 적용이 불가능함
     @Autowired
     public JwtUtil(
             @Value("${jwt.secret.key}") String secretKey,
             @Value("${jwt.access.expiration}") long accessExpiration,
-            @Value("${jwt.refresh.expiration}") long refreshExpiration,
-            UserRepository userRepository) {
+            @Value("${jwt.refresh.expiration}") long refreshExpiration
+    ) {
         this.SECRET_KEY = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
         this.ACCESS_TOKEN_EXPIRATION_TIME = accessExpiration;
         this.REFRESH_TOKEN_EXPIRATION_TIME = refreshExpiration;
-        this.userRepository = userRepository;
     }
 
 
@@ -97,15 +94,15 @@ public class JwtUtil {
     }
 
 
-    public String validateToken(String token) {
+    public Boolean validateToken(String token) {
         LOGGER.info("[validateToken] Token validation check start");
         try {
             getTokenPayload(token);
             LOGGER.info("[validateToken] Token validation check success");
-            return token;
+            return true;
         } catch (Exception e) {
             LOGGER.error("[validateToken] Token validation check fail - invalid token");
-            throw new CustomException("Invalid token", HttpStatus.UNAUTHORIZED);
+            return false;
         }
     }
 }

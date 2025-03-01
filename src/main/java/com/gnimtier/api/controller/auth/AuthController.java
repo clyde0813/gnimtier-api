@@ -20,13 +20,4 @@ public class AuthController {
     ) {
         return ResponseEntity.ok(authService.refreshToken(refreshToken));
     }
-
-    // 토큰 검증
-    @GetMapping("/validate")
-    public ResponseEntity<Boolean> validate(
-            @RequestParam String token
-    ) {
-        jwtUtil.validateToken(token);
-        return ResponseEntity.ok(true);
-    }
 }
