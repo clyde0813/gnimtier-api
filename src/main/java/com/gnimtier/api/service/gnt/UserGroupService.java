@@ -16,6 +16,7 @@ import com.gnimtier.api.data.entity.gnt.UserGroupAssociation;
 import com.gnimtier.api.data.entity.riot.UserPuuid;
 import com.gnimtier.api.exception.CustomException;
 import com.gnimtier.api.repository.*;
+import io.micrometer.core.annotation.Timed;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -127,14 +128,19 @@ public class UserGroupService {
         // 이미 투표한 그룹 & 1시간 이내인지 확인
         if (latestVoteOpt.isPresent()) {
             PendingUserGroupVote latestVote = latestVoteOpt.get();
-            if (!latestVote.getCreatedAt().isBefore(LocalDateTime.now().minusHours(1))) {
+            if (!latestVote
+                    .getCreatedAt()
+                    .isBefore(LocalDateTime
+                            .now()
+                            .minusHours(1))) {
                 LOGGER.error("[UserGroupService] - voteGroup failed : already voted within 1 hour");
                 throw new CustomException("Already voted group.", HttpStatus.BAD_REQUEST);
             }
         }
 
         // 투표 저장
-        PendingUserGroupVote pendingUserGroupVote = PendingUserGroupVote.builder()
+        PendingUserGroupVote pendingUserGroupVote = PendingUserGroupVote
+                .builder()
                 .userId(userId)
                 .pendingUserGroupId(groupId)
                 .createdAt(LocalDateTime.now())
@@ -142,7 +148,8 @@ public class UserGroupService {
         pendingUserGroupVoteRepository.save(pendingUserGroupVote);
 
         // 투표수 증가
-        PendingUserGroup pendingUserGroup = pendingUserGroupRepository.findById(groupId)
+        PendingUserGroup pendingUserGroup = pendingUserGroupRepository
+                .findById(groupId)
                 .orElseThrow(() -> new CustomException("Invalid group.", HttpStatus.BAD_REQUEST));
 
         pendingUserGroup.setVoteCount(pendingUserGroup.getVoteCount() + 1);
@@ -152,15 +159,18 @@ public class UserGroupService {
     }
 
 
-
     // 그룹 생성 신청
     public void createGroup(User user, PendingUserGroupRequestDto pendingUserGroupRequestDto) {
         // 이미 생성한 그룹인 경우
         Optional<PendingUserGroup> latestGroupOpt = pendingUserGroupRepository
                 .findFirstByUserIdOrderByCreatedAtDesc(user.getId());
-        LocalDateTime limitTime = LocalDateTime.now().minusHours(6);
+        LocalDateTime limitTime = LocalDateTime
+                .now()
+                .minusHours(6);
         boolean canCreateGroup = latestGroupOpt
-                .map(pendingUserGroup -> pendingUserGroup.getCreatedAt().isBefore(limitTime))
+                .map(pendingUserGroup -> pendingUserGroup
+                        .getCreatedAt()
+                        .isBefore(limitTime))
                 .orElse(true); // 값이 없으면 그룹 생성 가능
         if (!canCreateGroup) {
             throw new CustomException("Already created group.", HttpStatus.BAD_REQUEST);
@@ -182,7 +192,7 @@ public class UserGroupService {
     // 그룹 가입
     public void joinGroup(User user, String groupId) {
         // 중복 가입 금지
-        if (userGroupAssociationRepository.existsUserGroupAssociationByUserIdAndGroupId(user.getId(), groupId)) {
+        if (userGroupAssociationRepository.existsByUserIdAndGroupId(user.getId(), groupId)) {
             LOGGER.error("[UserGroupService] - joinGroup failed : already joined group");
             throw new CustomException("Already joined group.", HttpStatus.BAD_REQUEST);
         }
@@ -209,7 +219,7 @@ public class UserGroupService {
     @Transactional
     public void leaveGroup(User user, String groupId) {
         // 가입되지 않은 그룹 탈퇴 불가
-        if (!userGroupAssociationRepository.existsUserGroupAssociationByUserIdAndGroupId(user.getId(), groupId)) {
+        if (!userGroupAssociationRepository.existsByUserIdAndGroupId(user.getId(), groupId)) {
             LOGGER.error("[UserGroupService] - leaveGroup failed : not joined group");
             throw new CustomException("Not joined group.", HttpStatus.BAD_REQUEST);
         }
@@ -218,6 +228,7 @@ public class UserGroupService {
         LOGGER.info("[UserGroupService] - leaveGroup success : {}", user.getId());
     }
 
+//    @Timed(value = "getPuuidList", description = "Get puuid list by group id")
     public List<String> getPuuidList(String groupId) {
         List<UserGroupAssociation> userGroupAssociations = userGroupAssociationRepository.findAllByGroupId(groupId);
         List<String> puuidList = new ArrayList<>();

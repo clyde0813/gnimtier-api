@@ -52,7 +52,7 @@ public class UserService {
         // summonerResponseDto from gnt-riot-api
         SummonerResponseDto summonerResponseDto = summonerService.getSummoner(puuid, false);
         // UserPuuid Object -> DB
-        UserPuuid userPuuid = new UserPuuid(user.getId(), summonerResponseDto.getPuuid());
+        UserPuuid userPuuid = new UserPuuid(summonerResponseDto.getPuuid(), user.getId());
         userPuuidRepository.save(userPuuid);
     }
 }
