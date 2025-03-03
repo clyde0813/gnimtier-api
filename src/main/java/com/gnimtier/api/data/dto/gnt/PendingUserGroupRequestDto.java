@@ -5,16 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PendingUserGroupDto {
-    private String id;
+public class PendingUserGroupRequestDto {
     private String name;
     private String description;
-    private int voteCount;
-    private LocalDateTime createdAt;
 }

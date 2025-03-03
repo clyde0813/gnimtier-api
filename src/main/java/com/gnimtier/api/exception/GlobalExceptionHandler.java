@@ -13,6 +13,7 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -25,7 +26,7 @@ public class GlobalExceptionHandler {
     //처리되지 않은 모든 예외를 처리
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGlobalException(Exception ex, HttpServletRequest request) {
-        LOGGER.error(ex.getMessage());
+        LOGGER.error(ex.toString());
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of(
@@ -35,7 +36,20 @@ public class GlobalExceptionHandler {
                 ));
     }
 
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<Object> handleNoResourceFoundException(NoResourceFoundException ex, HttpServletRequest request) {
+        LOGGER.error("[NoResourceFoundException] {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "message", "404 Not Found",
+                        "status", HttpStatus.NOT_FOUND.value()
+                ));
+    }
+
     @ExceptionHandler(AuthenticationException.class)
+
     public ResponseEntity<Object> handleAuthenticationException(AuthenticationException ex, HttpServletRequest request) {
         LOGGER.error("[AuthenticationException] {}", ex.getMessage());
         return ResponseEntity

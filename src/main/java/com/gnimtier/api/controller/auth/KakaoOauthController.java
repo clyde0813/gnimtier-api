@@ -2,6 +2,7 @@ package com.gnimtier.api.controller.auth;
 
 import com.gnimtier.api.data.dto.basic.DataDto;
 import com.gnimtier.api.service.auth.KakaoOauthService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,7 @@ public class KakaoOauthController {
 
     // 카카오 Oauth
     // json : data - tokens - Map<String, String>
+    @Tag(name = "(Auth) 카카오 Oauth")
     @GetMapping("/oauth/kakao")
     public ResponseEntity<?> kakaoOauth(@RequestParam("code") String code) {
         LOGGER.info("Kakao Oauth code: {}", code);

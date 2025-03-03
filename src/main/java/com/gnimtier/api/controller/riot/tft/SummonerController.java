@@ -3,6 +3,7 @@ package com.gnimtier.api.controller.riot.tft;
 import com.gnimtier.api.data.dto.basic.DataDto;
 import com.gnimtier.api.data.dto.riot.internal.response.SummonerResponseDto;
 import com.gnimtier.api.service.riot.tft.SummonerService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +18,7 @@ import java.util.Map;
 public class SummonerController {
     private final SummonerService summonerService;
 
+    @Tag(name = "(TFT) 소환사 조회")
     @GetMapping("/summoners")
     public DataDto<Map<String, SummonerResponseDto>> getRiotSummoner(
             @RequestParam(value = "gameName", required = true) String gameName,

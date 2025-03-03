@@ -41,6 +41,7 @@ public class PendingUserGroup {
                 .name(name)
                 .description(description)
                 .voteCount(voteCount)
+                .createdAt(createdAt)
                 .build();
     }
 }

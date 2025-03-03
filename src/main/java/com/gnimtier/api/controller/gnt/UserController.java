@@ -7,6 +7,7 @@ import com.gnimtier.api.data.entity.auth.User;
 import com.gnimtier.api.service.auth.AuthService;
 import com.gnimtier.api.service.gnt.UserGroupService;
 import com.gnimtier.api.service.gnt.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,7 @@ public class UserController {
 
     // 사용자 정보 조회
     // json : data - user - UserDto
+    @Tag(name = "(User) 사용자 정보 조회")
     @GetMapping("/{userId}")
     public ResponseEntity<?> getUser(@PathVariable String userId) {
         LOGGER.info("[UserController.getUser()] called");
@@ -38,6 +40,7 @@ public class UserController {
 
     // 내 정보 조희
     // json : data - user - UserDto
+    @Tag(name = "(User) 내 정보 조회", description = "로그인 필수")
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> getMe() {
@@ -48,6 +51,7 @@ public class UserController {
 
     // 가입된 그룹 조회
     // json : data - groups - List<UserGroupRankDto>
+    @Tag(name = "(User) 사용자 그룹 조회")
     @GetMapping("/{userId}/groups")
     public ResponseEntity<?> getGroups(@PathVariable String userId) {
         LOGGER.info("[UserGroupController.getGroups()] Get groups");
@@ -56,6 +60,7 @@ public class UserController {
 
     // 사용자 라이엇 계정 조회
     // json : data - summoner - Map<String, SummonerResponseDto>
+    @Tag(name = "(User) 사용자 라이엇 계정 조회")
     @GetMapping("/{userId}/riot/summoners")
     public DataDto<?> getRiotAccount(@PathVariable String userId) {
         LOGGER.info("[UserController.getRiotAccount()] called");
@@ -63,6 +68,7 @@ public class UserController {
     }
 
     // 라이엇 계정 등록
+    @Tag(name = "(User) 라이엇 계정 등록", description = "로그인 필수")
     @PostMapping("/riot/summoners")
     @PreAuthorize("isAuthenticated()")
     public StatusDto registerRiotAccount(@RequestParam(value = "puuid", required = true) String puuid) {

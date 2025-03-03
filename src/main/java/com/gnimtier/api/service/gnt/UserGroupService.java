@@ -2,6 +2,7 @@ package com.gnimtier.api.service.gnt;
 
 import com.gnimtier.api.client.riot.RiotApiClient;
 import com.gnimtier.api.data.dto.gnt.PendingUserGroupDto;
+import com.gnimtier.api.data.dto.gnt.PendingUserGroupRequestDto;
 import com.gnimtier.api.data.dto.gnt.UserGroupDto;
 import com.gnimtier.api.data.dto.gnt.UserGroupRankDto;
 import com.gnimtier.api.data.dto.riot.client.Response.PageableResponseDto;
@@ -9,6 +10,7 @@ import com.gnimtier.api.data.dto.riot.client.request.RankRequestDto;
 import com.gnimtier.api.data.dto.riot.internal.request.UserGroupSearchRequestDto;
 import com.gnimtier.api.data.entity.auth.User;
 import com.gnimtier.api.data.entity.gnt.PendingUserGroup;
+import com.gnimtier.api.data.entity.gnt.PendingUserGroupVote;
 import com.gnimtier.api.data.entity.gnt.UserGroup;
 import com.gnimtier.api.data.entity.gnt.UserGroupAssociation;
 import com.gnimtier.api.data.entity.riot.UserPuuid;
@@ -24,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +42,7 @@ public class UserGroupService {
     private final UserPuuidRepository userPuuidRepository;
 
     private final PendingUserGroupRepository pendingUserGroupRepository;
+    private final PendingUserGroupVoteRepository pendingUserGroupVoteRepository;
 
     private final Logger LOGGER = LoggerFactory.getLogger(UserGroupService.class);
     private final UserRepository userRepository;
@@ -87,26 +91,91 @@ public class UserGroupService {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
 
         // 정렬 조건에 따라 Repository 메서드 매핑
-        Map<String, Function<Pageable, Page<PendingUserGroup>>> sortMethodMap = Map.of(
-                "votes", pendingUserGroupRepository::findAllByOrderByVoteCountDesc,
-                "createdAt", pendingUserGroupRepository::findAllByOrderByCreatedAtDesc,
-                "name", pendingUserGroupRepository::findAllByOrderByNameAsc
-        );
+        Map<String, Function<Pageable, Page<PendingUserGroup>>> sortMethodMap = Map.of("votes", pendingUserGroupRepository::findAllByOrderByVoteCountDesc, "createdAt", pendingUserGroupRepository::findAllByOrderByCreatedAtDesc, "name", pendingUserGroupRepository::findAllByOrderByNameAsc);
 
         // 존재하지 않는 sortBy일 경우 기본 정렬 적용
-        Page<PendingUserGroup> pendingUserGroupsPage =
-                sortMethodMap.getOrDefault(sortBy, pendingUserGroupRepository::findAllByOrderByVoteCountDesc)
-                        .apply(pageable);
+        Page<PendingUserGroup> pendingUserGroupsPage = sortMethodMap
+                .getOrDefault(sortBy, pendingUserGroupRepository::findAllByOrderByVoteCountDesc)
+                .apply(pageable);
 
         // ResponseDto 생성 및 데이터 설정
-        return PageableResponseDto.<PendingUserGroupDto>builder()
-                .data(pendingUserGroupsPage.stream().map(PendingUserGroup::toDto).toList())
+        return PageableResponseDto
+                .<PendingUserGroupDto>builder()
+                .data(pendingUserGroupsPage
+                        .stream()
+                        .map(PendingUserGroup::toDto)
+                        .toList())
                 .sortBy(sortBy)
                 .pageSize(pendingUserGroupsPage.getSize())
                 .page(pendingUserGroupsPage.getNumber())
                 .hasNext(pendingUserGroupsPage.hasNext())
                 .hasPrevious(pendingUserGroupsPage.hasPrevious())
                 .build();
+    }
+
+    // 그룹 투표
+    public void voteGroup(String userId, String groupId) {
+        // 유효하지 않은 그룹 id 투표 금지
+        if (!pendingUserGroupRepository.existsById(groupId)) {
+            throw new CustomException("Invalid group.", HttpStatus.BAD_REQUEST);
+        }
+
+        // 최신 투표 내역 조회
+        Optional<PendingUserGroupVote> latestVoteOpt =
+                pendingUserGroupVoteRepository.findFirstByUserIdOrderByCreatedAtDesc(userId);
+
+        // 이미 투표한 그룹 & 1시간 이내인지 확인
+        if (latestVoteOpt.isPresent()) {
+            PendingUserGroupVote latestVote = latestVoteOpt.get();
+            if (!latestVote.getCreatedAt().isBefore(LocalDateTime.now().minusHours(1))) {
+                LOGGER.error("[UserGroupService] - voteGroup failed : already voted within 1 hour");
+                throw new CustomException("Already voted group.", HttpStatus.BAD_REQUEST);
+            }
+        }
+
+        // 투표 저장
+        PendingUserGroupVote pendingUserGroupVote = PendingUserGroupVote.builder()
+                .userId(userId)
+                .pendingUserGroupId(groupId)
+                .createdAt(LocalDateTime.now())
+                .build();
+        pendingUserGroupVoteRepository.save(pendingUserGroupVote);
+
+        // 투표수 증가
+        PendingUserGroup pendingUserGroup = pendingUserGroupRepository.findById(groupId)
+                .orElseThrow(() -> new CustomException("Invalid group.", HttpStatus.BAD_REQUEST));
+
+        pendingUserGroup.setVoteCount(pendingUserGroup.getVoteCount() + 1);
+        pendingUserGroupRepository.save(pendingUserGroup);
+
+        LOGGER.info("[UserGroupService] - voteGroup success : {}", pendingUserGroupVote);
+    }
+
+
+
+    // 그룹 생성 신청
+    public void createGroup(User user, PendingUserGroupRequestDto pendingUserGroupRequestDto) {
+        // 이미 생성한 그룹인 경우
+        Optional<PendingUserGroup> latestGroupOpt = pendingUserGroupRepository
+                .findFirstByUserIdOrderByCreatedAtDesc(user.getId());
+        LocalDateTime limitTime = LocalDateTime.now().minusHours(6);
+        boolean canCreateGroup = latestGroupOpt
+                .map(pendingUserGroup -> pendingUserGroup.getCreatedAt().isBefore(limitTime))
+                .orElse(true); // 값이 없으면 그룹 생성 가능
+        if (!canCreateGroup) {
+            throw new CustomException("Already created group.", HttpStatus.BAD_REQUEST);
+        }
+
+
+        // 그룹 생성 신청
+        PendingUserGroup pendingUserGroup = new PendingUserGroup();
+        pendingUserGroup.setUserId(user.getId());
+        pendingUserGroup.setName(pendingUserGroupRequestDto.getName());
+        pendingUserGroup.setDescription(pendingUserGroupRequestDto.getDescription());
+        pendingUserGroup.setVoteCount(0);
+        pendingUserGroup.setCreatedAt(LocalDateTime.now());
+        pendingUserGroupRepository.save(pendingUserGroup);
+        LOGGER.info("[UserGroupService] - createGroupVote success : {}", pendingUserGroup);
     }
 
 
