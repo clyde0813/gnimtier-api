@@ -2,8 +2,6 @@ package com.gnimtier.api.controller.gnt;
 
 import com.gnimtier.api.data.dto.basic.DataDto;
 import com.gnimtier.api.data.dto.basic.StatusDto;
-import com.gnimtier.api.data.dto.gnt.UserDto;
-import com.gnimtier.api.data.dto.gnt.UserGroupDto;
 import com.gnimtier.api.data.dto.riot.internal.response.SummonerResponseDto;
 import com.gnimtier.api.data.entity.auth.User;
 import com.gnimtier.api.service.auth.AuthService;
@@ -26,67 +24,48 @@ import java.util.Map;
 @RequestMapping("/users")
 public class UserController {
     private final AuthService authService;
+    private final UserService userService;
     private final UserGroupService userGroupService;
     private final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
-    private final UserService userService;
+
+    // 사용자 정보 조회
+    // json : data - user - UserDto
+    @GetMapping("/{userId}")
+    public ResponseEntity<?> getUser(@PathVariable String userId) {
+        LOGGER.info("[UserController.getUser()] called");
+        return ResponseEntity.ok(new DataDto<>(Map.of("user", userService.getUserByUserId(userId).getUserDto())));
+    }
 
     // 내 정보 조희
+    // json : data - user - UserDto
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<DataDto<Map<String, UserDto>>> getMe() {
+    public ResponseEntity<?> getMe() {
         LOGGER.info("[UserController.getMe()] called");
         User user = authService.getUserFromAuthentication();
         return ResponseEntity.ok(new DataDto<>(Map.of("user", user.getUserDto())));
     }
 
     // 가입된 그룹 조회
-    @GetMapping("/groups")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<DataDto<Map<String, List<UserGroupDto>>>> getGroups() {
+    // json : data - groups - List<UserGroupRankDto>
+    @GetMapping("/{userId}/groups")
+    public ResponseEntity<?> getGroups(@PathVariable String userId) {
         LOGGER.info("[UserGroupController.getGroups()] Get groups");
-        User user = authService.getUserFromAuthentication();
-        return ResponseEntity.ok(new DataDto<>(Map.of("groups", userGroupService.getUserGroups(user.getId()))));
+        return ResponseEntity.ok(new DataDto<>(Map.of("groups", userGroupService.getUserGroups(userId))));
     }
 
-    // 그룹 가입
-    @PostMapping("/groups")
-    @PreAuthorize("isAuthenticated()")
-    public StatusDto joinGroup(
-            @RequestParam(value = "groupId", required = true) String groupId
-    ) {
-        LOGGER.info("[UserGroupController.joinGroup()] Join group");
-        User user = authService.getUserFromAuthentication();
-        userGroupService.joinGroup(user, groupId);
-        return new StatusDto(HttpStatus.ACCEPTED, "Group joined", LocalDateTime.now());
-    }
-
-    // 그룹 탈퇴
-    @DeleteMapping("/groups")
-    @PreAuthorize("isAuthenticated()")
-    public StatusDto leaveGroup(
-            @RequestParam(value = "groupId", required = true) String groupId
-    ) {
-        LOGGER.info("[UserGroupController.leaveGroup()] Leave group");
-        User user = authService.getUserFromAuthentication();
-        userGroupService.leaveGroup(user, groupId);
-        return new StatusDto(HttpStatus.ACCEPTED, "Group left", LocalDateTime.now());
-    }
-
-    // 내 라이엇 계정 조회
-    @GetMapping("/riot/account")
-    @PreAuthorize("isAuthenticated()")
-    public DataDto<Map<String, SummonerResponseDto>> getRiotAccount() {
+    // 사용자 라이엇 계정 조회
+    // json : data - summoner - Map<String, SummonerResponseDto>
+    @GetMapping("/{userId}/riot/summoners")
+    public DataDto<?> getRiotAccount(@PathVariable String userId) {
         LOGGER.info("[UserController.getRiotAccount()] called");
-        User user = authService.getUserFromAuthentication();
-        return new DataDto<>(Map.of("summoner", userService.getRiotAccount(user)));
+        return new DataDto<>(Map.of("summoners", userService.getRiotAccount(userId)));
     }
 
     // 라이엇 계정 등록
-    @PostMapping("/riot/account")
+    @PostMapping("/riot/summoners")
     @PreAuthorize("isAuthenticated()")
-    public StatusDto registerRiotAccount(
-            @RequestParam(value = "puuid", required = true) String puuid
-    ) {
+    public StatusDto registerRiotAccount(@RequestParam(value = "puuid", required = true) String puuid) {
         LOGGER.info("[UserController.registerRiotAccount()] called");
         User user = authService.getUserFromAuthentication();
         userService.registerRiotAccount(user, puuid);

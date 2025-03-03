@@ -16,4 +16,6 @@ public interface UserGroupAssociationRepository extends JpaRepository<UserGroupA
     void deleteUserGroupAssociationByUserIdAndGroupId(String userId, String groupId);
     
     Boolean existsUserGroupAssociationByUserIdAndGroupId(String userId, String groupId);
+
+    Integer countAllByGroupId(String groupId);
 }

@@ -2,6 +2,7 @@ package com.gnimtier.api.data.dto.gnt;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
@@ -9,12 +10,8 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class UserGroupDto {
-    private String id;
-    private String name;
-    private String description;
-    private String parentId;
-    private Boolean isOfficial;
-    private Boolean isJoinable;
+@EqualsAndHashCode(callSuper = true)
+public class UserGroupRankDto extends UserGroupDto {
+    private Integer userCount;
+    private int rank;
 }
-

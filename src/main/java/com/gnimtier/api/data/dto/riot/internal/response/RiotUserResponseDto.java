@@ -1,7 +1,6 @@
-package com.gnimtier.api.data.dto.riot.client.Response;
+package com.gnimtier.api.data.dto.riot.internal.response;
 
 import com.gnimtier.api.data.dto.gnt.UserDto;
-import com.gnimtier.api.data.dto.riot.internal.response.SummonerResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

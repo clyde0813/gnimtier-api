@@ -45,13 +45,11 @@ public class AuthService {
 
     public User getUserFromAuthentication() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         if (!(authentication instanceof JwtAuthentication jwtAuthentication)) {
             throw new CustomException("Invalid authentication", HttpStatus.UNAUTHORIZED);
         }
 
         String userId = jwtAuthentication.getPrincipal();
-
         if (userId == null || userId.isEmpty()) {
             throw new CustomException("Invalid authentication", HttpStatus.UNAUTHORIZED);
         }

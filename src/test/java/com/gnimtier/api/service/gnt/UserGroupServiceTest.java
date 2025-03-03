@@ -1,6 +1,7 @@
 package com.gnimtier.api.service.gnt;
 
 import com.gnimtier.api.data.dto.gnt.UserGroupDto;
+import com.gnimtier.api.data.dto.gnt.UserGroupRankDto;
 import com.gnimtier.api.data.entity.gnt.UserGroup;
 import com.gnimtier.api.data.entity.gnt.UserGroupAssociation;
 import com.gnimtier.api.repository.UserGroupAssociationRepository;
@@ -88,7 +89,7 @@ class UserGroupServiceTest {
         when(userGroupAssociationRepository.findAllByUserId(userId)).thenReturn(List.of(new UserGroupAssociation(1L, userId, "group1", "group1")));
         when(userGroupRepository.findById("group1")).thenReturn(userGroup);
 
-        List<UserGroupDto> result = userGroupService.getUserGroups(userId);
+        List<UserGroupRankDto> result = userGroupService.getUserGroups(userId);
 
         assertEquals(1, result.size());
         assertEquals("group1", result.getFirst().getId());
@@ -100,7 +101,7 @@ class UserGroupServiceTest {
         String userId = "user1";
         when(userGroupAssociationRepository.findAllByUserId(userId)).thenReturn(Collections.emptyList());
 
-        List<UserGroupDto> result = userGroupService.getUserGroups(userId);
+        List<UserGroupRankDto> result = userGroupService.getUserGroups(userId);
 
         assertEquals(0, result.size());
     }

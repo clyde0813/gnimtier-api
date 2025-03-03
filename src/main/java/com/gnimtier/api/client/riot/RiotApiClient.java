@@ -2,6 +2,7 @@ package com.gnimtier.api.client.riot;
 
 import com.gnimtier.api.data.dto.riot.client.Response.PageableResponseDto;
 import com.gnimtier.api.data.dto.riot.client.request.PageableRequestDto;
+import com.gnimtier.api.data.dto.riot.client.request.RankRequestDto;
 import com.gnimtier.api.data.dto.riot.internal.response.SummonerResponseDto;
 import com.gnimtier.api.exception.CustomException;
 import org.slf4j.Logger;
@@ -22,8 +23,10 @@ public class RiotApiClient {
     private String TFT_SUMMONER_PUUID;
     @Value("${gnt.riot.tft.summoner.riotId}")
     private String TFT_SUMMONER_RIOT_ID;
-    @Value("${gnt.riot.tft.summoner.ranking.url}")
+    @Value("${gnt.riot.tft.summoner.leaderboards.puuid}")
     private String TFT_SUMMONER_RANKING_URL;
+    @Value("${gnt.riot.tft.summoner.ranks.puuid}")
+    private String TFT_SUMMONER_RANKS_URL;
     private final Logger LOGGER = LoggerFactory.getLogger(RiotApiClient.class);
 
     public SummonerResponseDto getSummoner(String puuid, boolean refresh) {
@@ -80,7 +83,25 @@ public class RiotApiClient {
                 .bodyToMono(new ParameterizedTypeReference<PageableResponseDto<SummonerResponseDto>>() {
                 })
                 .block();
-        LOGGER.info("[getSummonerLeaderboard] - Got Summoner Leaderboard : {}", response);
+        LOGGER.info("[getSummonerLeaderboard] - Got Summoner Leaderboard");
+        return response;
+    }
+
+    public Integer getSummonerRank(RankRequestDto rankRequestDto){
+        LOGGER.info("[getSummonerRank] - Getting Summoner Rank");
+        Integer response = WebClient
+                .create(GNT_API_URL)
+                .post()
+                .uri(uriBuilder -> uriBuilder
+                        .path(TFT_SUMMONER_RANKS_URL)
+                        .build(true))
+                .bodyValue(rankRequestDto)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new CustomException("Bad Request", HttpStatus.BAD_REQUEST)))
+                .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new CustomException("Riot API Error", HttpStatus.BAD_REQUEST)))
+                .bodyToMono(Integer.class)
+                .block();
+        LOGGER.info("[getSummonerRank] - Got Summoner Rank");
         return response;
     }
 }

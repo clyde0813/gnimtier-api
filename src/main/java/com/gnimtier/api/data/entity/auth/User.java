@@ -32,6 +32,7 @@ public class User {
 
     public UserDto getUserDto() {
         UserDto userDto = new UserDto();
+        userDto.setId(id);
         userDto.setNickname(nickname);
         userDto.setProfileImageUrl(profileImageUrl);
         return userDto;

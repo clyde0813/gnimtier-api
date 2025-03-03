@@ -2,7 +2,7 @@ package com.gnimtier.api.controller.riot.tft;
 
 import com.gnimtier.api.data.dto.basic.DataDto;
 import com.gnimtier.api.data.dto.riot.client.Response.PageableResponseDto;
-import com.gnimtier.api.data.dto.riot.client.Response.RiotUserResponseDto;
+import com.gnimtier.api.data.dto.riot.internal.response.RiotUserResponseDto;
 import com.gnimtier.api.data.dto.riot.internal.LeaderboardParamDto;
 import com.gnimtier.api.service.riot.tft.LeaderboardService;
 import lombok.RequiredArgsConstructor;

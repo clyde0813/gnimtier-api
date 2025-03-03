@@ -9,8 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserDto {
+public class PendingUserGroupDto {
     private String id;
-    private String nickname;
-    private String profileImageUrl;
+    private String name;
+    private String description;
+    private int voteCount;
 }

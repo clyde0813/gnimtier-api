@@ -32,11 +32,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
 
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain chain
-    ) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || authHeader.isBlank()) {
             chain.doFilter(request, response);
@@ -54,7 +50,9 @@ public class JwtFilter extends OncePerRequestFilter {
                     .parseSignedClaims(token);
             LOGGER.info("[getTokenPayload] Token payload : {}", claimsJws.getPayload());
             Claims claims = claimsJws.getPayload();
-            if (!claims.get("tokenType").equals("access")) {
+            if (!claims
+                    .get("tokenType")
+                    .equals("access")) {
                 handleException(response, "Invalid Token", HttpStatus.UNAUTHORIZED);
                 return;
             }
@@ -90,8 +88,7 @@ public class JwtFilter extends OncePerRequestFilter {
         response.setCharacterEncoding("UTF-8");
 
         // JSON 응답 데이터 생성
-        Map<String, Object> errorDetails = Map.of(
-                "timestamp", LocalDateTime
+        Map<String, Object> errorDetails = Map.of("timestamp", LocalDateTime
                         .now()
                         .toString(), // 현재 시간
                 "message", message,                           // 에러 메시지

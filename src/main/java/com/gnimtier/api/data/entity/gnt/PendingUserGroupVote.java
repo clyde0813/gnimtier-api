@@ -1,19 +1,18 @@
 package com.gnimtier.api.data.entity.gnt;
 
-import com.gnimtier.api.data.entity.auth.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@Table(name = "user_group_association")
-public class UserGroupAssociation {
+@Table(name = "pending_user_group_vote")
+public class PendingUserGroupVote {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,6 +20,9 @@ public class UserGroupAssociation {
     @Column(name = "user_id")
     private String userId;
 
-    @Column(name = "group_id")
-    private String groupId;
+    @Column(name = "pending_user_group_id")
+    private String pendingUserGroupId;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 }

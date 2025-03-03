@@ -25,13 +25,13 @@ public class UserService {
     public User getUserByUserId(String userId) {
         return userRepository
                 .findById(userId)
-                .orElse(null);
+                .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
     }
 
-    public SummonerResponseDto getRiotAccount(User user) {
+    public SummonerResponseDto getRiotAccount(String userId) {
         String puuid = userPuuidRepository
-                .findByUserId(user.getId())
-                .orElseThrow(() -> new CustomException("등록된 계정이 없습니다.", HttpStatus.BAD_REQUEST))
+                .findByUserId(userId)
+                .orElseThrow(() -> new CustomException("Riot Account Not Found", HttpStatus.BAD_REQUEST))
                 .getPuuid();
         return summonerService.getSummoner(puuid, false);
     }

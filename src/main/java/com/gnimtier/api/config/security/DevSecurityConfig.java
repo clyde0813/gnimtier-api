@@ -5,15 +5,10 @@ import com.gnimtier.api.exception.JwtAccessDeniedHandler;
 import com.gnimtier.api.exception.JwtAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
-import org.springframework.security.authorization.AuthorizationEventPublisher;
-import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -37,8 +32,7 @@ import java.util.List;
 public class DevSecurityConfig {
     @Value("${server.cors.allowed-origins}")
     private List<String> allowedOrigins;
-    @Value("${server.authenticated.paths}")
-    private List<String> authenticatedPaths;
+
     private final JwtUtil jwtUtil;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
@@ -63,8 +57,6 @@ public class DevSecurityConfig {
 
         //authorizeHttpRequests config
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers(authenticatedPaths.toArray(String[]::new))
-                .authenticated()
                 .anyRequest()
                 .permitAll()
         );
