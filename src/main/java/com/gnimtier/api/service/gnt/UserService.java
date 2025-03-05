@@ -25,13 +25,13 @@ public class UserService {
     public User getUserByUserId(String userId) {
         return userRepository
                 .findById(userId)
-                .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException("USER NOT FOUND", HttpStatus.NOT_FOUND));
     }
 
     public SummonerResponseDto getRiotAccount(String userId) {
         String puuid = userPuuidRepository
                 .findByUserId(userId)
-                .orElseThrow(() -> new CustomException("Riot Account Not Found", HttpStatus.BAD_REQUEST))
+                .orElseThrow(() -> new CustomException("RIOT ACCOUNT NOT FOUND", HttpStatus.BAD_REQUEST))
                 .getPuuid();
         return summonerService.getSummoner(puuid, false);
     }
@@ -42,11 +42,11 @@ public class UserService {
 
         // 1인 1계정 운영방침
         if (userExists) {
-            throw new CustomException("이미 등록된 계정이 있습니다.", HttpStatus.BAD_REQUEST);
+            throw new CustomException("ALREADY REGISTERED USER ACCOUNT.", HttpStatus.BAD_REQUEST);
         }
         // 중복 등록 방지
         if (puuidExists) {
-            throw new CustomException("이미 등록된 계정입니다.", HttpStatus.BAD_REQUEST);
+            throw new CustomException("ALREADY REGISTERED RIOT ACCOUNT.", HttpStatus.BAD_REQUEST);
         }
 
         // summonerResponseDto from gnt-riot-api

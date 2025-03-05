@@ -2,6 +2,7 @@ package com.gnimtier.api.controller.gnt;
 
 import com.gnimtier.api.data.dto.basic.DataDto;
 import com.gnimtier.api.data.dto.basic.StatusDto;
+import com.gnimtier.api.data.dto.riot.internal.request.SummonerRegisterRequestDto;
 import com.gnimtier.api.data.dto.riot.internal.response.SummonerResponseDto;
 import com.gnimtier.api.data.entity.auth.User;
 import com.gnimtier.api.service.auth.AuthService;
@@ -35,7 +36,9 @@ public class UserController {
     @GetMapping("/{userId}")
     public ResponseEntity<?> getUser(@PathVariable String userId) {
         LOGGER.info("[UserController.getUser()] called");
-        return ResponseEntity.ok(new DataDto<>(Map.of("user", userService.getUserByUserId(userId).getUserDto())));
+        return ResponseEntity.ok(new DataDto<>(Map.of("user", userService
+                .getUserByUserId(userId)
+                .getUserDto())));
     }
 
     // 내 정보 조희
@@ -71,10 +74,10 @@ public class UserController {
     @Tag(name = "(User) 라이엇 계정 등록", description = "로그인 필수")
     @PostMapping("/riot/summoners")
     @PreAuthorize("isAuthenticated()")
-    public StatusDto registerRiotAccount(@RequestParam(value = "puuid", required = true) String puuid) {
+    public StatusDto registerRiotAccount(@RequestBody(required = true) SummonerRegisterRequestDto summonerRegisterRequestDto) {
         LOGGER.info("[UserController.registerRiotAccount()] called");
         User user = authService.getUserFromAuthentication();
-        userService.registerRiotAccount(user, puuid);
+        userService.registerRiotAccount(user, summonerRegisterRequestDto.getPuuid());
         return new StatusDto(HttpStatus.ACCEPTED, "Riot account registered", LocalDateTime.now());
     }
 }

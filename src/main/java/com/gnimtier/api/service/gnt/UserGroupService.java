@@ -86,6 +86,51 @@ public class UserGroupService {
     }
 
 
+    // 그룹 가입
+    public void joinGroup(User user, String groupId) {
+        // 라이엇 계정 등록 확인
+        if (!userPuuidRepository.existsByUserId(user.getId())) {
+            throw new CustomException("RIOT ACCOUNT NOT FOUND", HttpStatus.FORBIDDEN);
+        }
+
+        // 중복 가입 금지
+        if (userGroupAssociationRepository.existsByUserIdAndGroupId(user.getId(), groupId)) {
+            LOGGER.error("[UserGroupService] - joinGroup failed : already joined group");
+            throw new CustomException("ALREADY JOINED GROUP.", HttpStatus.BAD_REQUEST);
+        }
+
+        // 유효하지 않은 그룹 id 가입 금지
+        if (!userGroupRepository.existsUserGroupById(groupId)) {
+            throw new CustomException("INVALID GROUP.", HttpStatus.BAD_REQUEST);
+        }
+
+        // isJoinable false 그룹 가입 금지
+        if (userGroupRepository.existsUserGroupById(groupId) && !userGroupRepository
+                .findById(groupId)
+                .isJoinable()) {
+            throw new CustomException("INVALID GROUP.", HttpStatus.BAD_REQUEST);
+        }
+
+        UserGroupAssociation userGroupAssociation = new UserGroupAssociation();
+        userGroupAssociation.setUserId(user.getId());
+        userGroupAssociation.setGroupId(groupId);
+        userGroupAssociationRepository.save(userGroupAssociation);
+        LOGGER.info("[UserGroupService] - joinGroup success : {}", userGroupAssociation);
+    }
+
+    @Transactional
+    public void leaveGroup(User user, String groupId) {
+        // 가입되지 않은 그룹 탈퇴 불가
+        if (!userGroupAssociationRepository.existsByUserIdAndGroupId(user.getId(), groupId)) {
+            LOGGER.error("[UserGroupService] - leaveGroup failed : not joined group");
+            throw new CustomException("NOT JOINED GROUP.", HttpStatus.BAD_REQUEST);
+        }
+
+        userGroupAssociationRepository.deleteUserGroupAssociationByUserIdAndGroupId(user.getId(), groupId);
+        LOGGER.info("[UserGroupService] - leaveGroup success : {}", user.getId());
+    }
+
+
     // 투표중인 그룹 검색
     public PageableResponseDto<PendingUserGroupDto> getPendingGroups(String sortBy, int page) {
         int PAGE_SIZE = 5;
@@ -118,12 +163,11 @@ public class UserGroupService {
     public void voteGroup(String userId, String groupId) {
         // 유효하지 않은 그룹 id 투표 금지
         if (!pendingUserGroupRepository.existsById(groupId)) {
-            throw new CustomException("Invalid group.", HttpStatus.BAD_REQUEST);
+            throw new CustomException("INVALID GROUP.", HttpStatus.BAD_REQUEST);
         }
 
         // 최신 투표 내역 조회
-        Optional<PendingUserGroupVote> latestVoteOpt =
-                pendingUserGroupVoteRepository.findFirstByUserIdOrderByCreatedAtDesc(userId);
+        Optional<PendingUserGroupVote> latestVoteOpt = pendingUserGroupVoteRepository.findFirstByUserIdOrderByCreatedAtDesc(userId);
 
         // 이미 투표한 그룹 & 1시간 이내인지 확인
         if (latestVoteOpt.isPresent()) {
@@ -134,7 +178,7 @@ public class UserGroupService {
                             .now()
                             .minusHours(1))) {
                 LOGGER.error("[UserGroupService] - voteGroup failed : already voted within 1 hour");
-                throw new CustomException("Already voted group.", HttpStatus.BAD_REQUEST);
+                throw new CustomException("ALREADY VOTED GROUP.", HttpStatus.BAD_REQUEST);
             }
         }
 
@@ -150,7 +194,7 @@ public class UserGroupService {
         // 투표수 증가
         PendingUserGroup pendingUserGroup = pendingUserGroupRepository
                 .findById(groupId)
-                .orElseThrow(() -> new CustomException("Invalid group.", HttpStatus.BAD_REQUEST));
+                .orElseThrow(() -> new CustomException("INVALID GROUP.", HttpStatus.BAD_REQUEST));
 
         pendingUserGroup.setVoteCount(pendingUserGroup.getVoteCount() + 1);
         pendingUserGroupRepository.save(pendingUserGroup);
@@ -162,8 +206,7 @@ public class UserGroupService {
     // 그룹 생성 신청
     public void createGroup(User user, PendingUserGroupRequestDto pendingUserGroupRequestDto) {
         // 이미 생성한 그룹인 경우
-        Optional<PendingUserGroup> latestGroupOpt = pendingUserGroupRepository
-                .findFirstByUserIdOrderByCreatedAtDesc(user.getId());
+        Optional<PendingUserGroup> latestGroupOpt = pendingUserGroupRepository.findFirstByUserIdOrderByCreatedAtDesc(user.getId());
         LocalDateTime limitTime = LocalDateTime
                 .now()
                 .minusHours(6);
@@ -173,7 +216,7 @@ public class UserGroupService {
                         .isBefore(limitTime))
                 .orElse(true); // 값이 없으면 그룹 생성 가능
         if (!canCreateGroup) {
-            throw new CustomException("Already created group.", HttpStatus.BAD_REQUEST);
+            throw new CustomException("ALREADY CREATED GROUP.", HttpStatus.BAD_REQUEST);
         }
 
 
@@ -189,46 +232,7 @@ public class UserGroupService {
     }
 
 
-    // 그룹 가입
-    public void joinGroup(User user, String groupId) {
-        // 중복 가입 금지
-        if (userGroupAssociationRepository.existsByUserIdAndGroupId(user.getId(), groupId)) {
-            LOGGER.error("[UserGroupService] - joinGroup failed : already joined group");
-            throw new CustomException("Already joined group.", HttpStatus.BAD_REQUEST);
-        }
-
-        // 유효하지 않은 그룹 id 가입 금지
-        if (!userGroupRepository.existsUserGroupById(groupId)) {
-            throw new CustomException("Invalid group.", HttpStatus.BAD_REQUEST);
-        }
-
-        // isJoinable false 그룹 가입 금지
-        if (userGroupRepository.existsUserGroupById(groupId) && !userGroupRepository
-                .findById(groupId)
-                .isJoinable()) {
-            throw new CustomException("Invalid group.", HttpStatus.BAD_REQUEST);
-        }
-
-        UserGroupAssociation userGroupAssociation = new UserGroupAssociation();
-        userGroupAssociation.setUserId(user.getId());
-        userGroupAssociation.setGroupId(groupId);
-        userGroupAssociationRepository.save(userGroupAssociation);
-        LOGGER.info("[UserGroupService] - joinGroup success : {}", userGroupAssociation);
-    }
-
-    @Transactional
-    public void leaveGroup(User user, String groupId) {
-        // 가입되지 않은 그룹 탈퇴 불가
-        if (!userGroupAssociationRepository.existsByUserIdAndGroupId(user.getId(), groupId)) {
-            LOGGER.error("[UserGroupService] - leaveGroup failed : not joined group");
-            throw new CustomException("Not joined group.", HttpStatus.BAD_REQUEST);
-        }
-
-        userGroupAssociationRepository.deleteUserGroupAssociationByUserIdAndGroupId(user.getId(), groupId);
-        LOGGER.info("[UserGroupService] - leaveGroup success : {}", user.getId());
-    }
-
-//    @Timed(value = "getPuuidList", description = "Get puuid list by group id")
+    //    @Timed(value = "getPuuidList", description = "Get puuid list by group id")
     public List<String> getPuuidList(String groupId) {
         List<UserGroupAssociation> userGroupAssociations = userGroupAssociationRepository.findAllByGroupId(groupId);
         List<String> puuidList = new ArrayList<>();
