@@ -4,7 +4,6 @@ import com.gnimtier.api.config.security.JwtAuthentication;
 import com.gnimtier.api.config.security.JwtUtil;
 import com.gnimtier.api.data.entity.auth.User;
 import com.gnimtier.api.exception.CustomException;
-import com.gnimtier.api.repository.UserRepository;
 import com.gnimtier.api.service.gnt.UserService;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
@@ -37,28 +36,36 @@ public class AuthService {
             String newRefreshToken = jwtUtil.generateRefreshToken(claims.getSubject());
             return Map.of("access_token", newAccessToken, "refresh_token", newRefreshToken);
         } catch (CustomException e) {
+            LOGGER.error("[refreshToken] - {}", e.getMessage());
             throw new CustomException(e.getMessage(), e.getStatus());
         } catch (Exception e) {
+            LOGGER.error("[refreshToken] - {}", e.getMessage());
             throw new CustomException("Invalid refresh token", HttpStatus.UNAUTHORIZED);
         }
     }
 
     public User getUserFromAuthentication() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        LOGGER.info("[getUserFromAuthentication] - Getting User");
+        Authentication authentication = SecurityContextHolder
+                .getContext()
+                .getAuthentication();
         if (!(authentication instanceof JwtAuthentication jwtAuthentication)) {
+            LOGGER.error("[getUserFromAuthentication] - Invalid authentication");
             throw new CustomException("Invalid authentication", HttpStatus.UNAUTHORIZED);
         }
 
         String userId = jwtAuthentication.getPrincipal();
         if (userId == null || userId.isEmpty()) {
+            LOGGER.error("[getUserFromAuthentication] - Invalid authentication");
             throw new CustomException("Invalid authentication", HttpStatus.UNAUTHORIZED);
         }
 
         User user = userService.getUserByUserId(userId);
         if (user == null) {
+            LOGGER.error("[getUserFromAuthentication] - User not found");
             throw new CustomException("User not found", HttpStatus.NOT_FOUND);
         }
-
+        LOGGER.info("[getUserFromAuthentication] - User found");
         return user;
     }
 }

@@ -23,12 +23,14 @@ public class UserService {
     private final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
     public User getUserByUserId(String userId) {
+        LOGGER.info("[getUserByUserId] - Getting User");
         return userRepository
                 .findById(userId)
                 .orElseThrow(() -> new CustomException("USER NOT FOUND", HttpStatus.NOT_FOUND));
     }
 
     public SummonerResponseDto getRiotAccount(String userId) {
+        LOGGER.info("[getRiotAccount] - Getting Riot Account");
         String puuid = userPuuidRepository
                 .findByUserId(userId)
                 .orElseThrow(() -> new CustomException("RIOT ACCOUNT NOT FOUND", HttpStatus.BAD_REQUEST))
@@ -37,15 +39,18 @@ public class UserService {
     }
 
     public void registerRiotAccount(User user, String puuid) {
+        LOGGER.info("[registerRiotAccount] - Registering Riot Account");
         boolean userExists = userPuuidRepository.existsByUserId(user.getId());
         boolean puuidExists = userPuuidRepository.existsByPuuid(puuid);
 
         // 1인 1계정 운영방침
         if (userExists) {
+            LOGGER.error("[registerRiotAccount] - User already has a Riot Account");
             throw new CustomException("ALREADY REGISTERED USER ACCOUNT.", HttpStatus.BAD_REQUEST);
         }
         // 중복 등록 방지
         if (puuidExists) {
+            LOGGER.error("[registerRiotAccount] - Riot Account already registered");
             throw new CustomException("ALREADY REGISTERED RIOT ACCOUNT.", HttpStatus.BAD_REQUEST);
         }
 

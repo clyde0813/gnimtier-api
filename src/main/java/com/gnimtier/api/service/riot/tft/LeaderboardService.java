@@ -34,6 +34,7 @@ public class LeaderboardService {
     private final Logger LOGGER = LoggerFactory.getLogger(LeaderboardService.class);
 
     public PageableResponseDto<RiotUserResponseDto> getLeaderboard(LeaderboardRequestDto leaderboardRequestDto) {
+        LOGGER.info("[getLeaderboard] - Getting Leaderboard");
         // gnt riot 에 보낼 요청 body
         PageableRequestDto<String> puuidRequestDto = new PageableRequestDto<>();
 
@@ -62,6 +63,7 @@ public class LeaderboardService {
                     try {
                         user = userService.getUserByUserId(userId);
                     } catch (Exception e) {
+                        LOGGER.error("[getLeaderboard] - User Not Found");
                         throw new CustomException("User Not Found", HttpStatus.INTERNAL_SERVER_ERROR);
                     }
                     RiotUserResponseDto tftUserResponseDto = new RiotUserResponseDto(user.getUserDto(), responseDto);
@@ -72,6 +74,7 @@ public class LeaderboardService {
         riotLeaderboardResponseDto.setPageSize(summonerResponseDtoList.getPageSize());
         riotLeaderboardResponseDto.setHasNext(summonerResponseDtoList.getHasNext());
         riotLeaderboardResponseDto.setHasPrevious(summonerResponseDtoList.getHasPrevious());
+        LOGGER.info("[getLeaderboard] - Got Leaderboard");
         return riotLeaderboardResponseDto;
     }
 }
