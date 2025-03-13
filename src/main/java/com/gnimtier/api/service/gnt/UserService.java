@@ -38,6 +38,7 @@ public class UserService {
         return summonerService.getSummoner(puuid, false);
     }
 
+
     public void registerRiotAccount(User user, String puuid) {
         LOGGER.info("[registerRiotAccount] - Registering Riot Account");
         boolean userExists = userPuuidRepository.existsByUserId(user.getId());

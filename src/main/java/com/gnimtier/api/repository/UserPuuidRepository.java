@@ -14,4 +14,7 @@ public interface UserPuuidRepository extends JpaRepository<UserPuuid, Long> {
     boolean existsByUserId(String id);
 
     boolean existsByPuuid(String puuid);
+
+    // ONLY FOR TESTING
+    void deleteAllByUserId(String userId);
 }

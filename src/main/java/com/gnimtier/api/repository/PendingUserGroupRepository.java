@@ -14,4 +14,7 @@ public interface PendingUserGroupRepository extends JpaRepository<PendingUserGro
     Page<PendingUserGroup> findAllByOrderByNameAsc(Pageable pageable);
 
     Optional<PendingUserGroup> findFirstByUserIdOrderByCreatedAtDesc(String userId);
+
+    // ONLY FOR TESTING
+    void deleteAllByUserId(String userId);
 }

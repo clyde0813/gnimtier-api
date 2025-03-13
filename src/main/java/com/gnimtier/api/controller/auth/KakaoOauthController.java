@@ -1,6 +1,7 @@
 package com.gnimtier.api.controller.auth;
 
 import com.gnimtier.api.data.dto.basic.DataDto;
+import com.gnimtier.api.data.dto.basic.StatusDto;
 import com.gnimtier.api.service.auth.KakaoOauthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

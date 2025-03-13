@@ -3,11 +3,11 @@ package com.gnimtier.api.controller.gnt;
 import com.gnimtier.api.data.dto.basic.DataDto;
 import com.gnimtier.api.data.dto.basic.StatusDto;
 import com.gnimtier.api.data.dto.riot.internal.request.SummonerRegisterRequestDto;
-import com.gnimtier.api.data.dto.riot.internal.response.SummonerResponseDto;
 import com.gnimtier.api.data.entity.auth.User;
 import com.gnimtier.api.service.auth.AuthService;
 import com.gnimtier.api.service.gnt.UserGroupService;
 import com.gnimtier.api.service.gnt.UserService;
+import com.gnimtier.api.service.gnt.UserTmpService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -18,7 +18,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -27,6 +26,7 @@ import java.util.Map;
 public class UserController {
     private final AuthService authService;
     private final UserService userService;
+    private final UserTmpService userTmpService;
     private final UserGroupService userGroupService;
     private final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
@@ -80,4 +80,16 @@ public class UserController {
         userService.registerRiotAccount(user, summonerRegisterRequestDto.getPuuid());
         return new StatusDto(HttpStatus.ACCEPTED, "Riot account registered", LocalDateTime.now());
     }
+
+    // (ONLY FOR TESTING) 계정 데이터 삭제
+    @Tag(name = "(User) 계정 데이터 삭제", description = "로그인 필수")
+    @DeleteMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    public StatusDto deleteAccount() {
+        LOGGER.info("[UserController.deleteAccount()] called");
+        User user = authService.getUserFromAuthentication();
+        userTmpService.deleteAccount(user);
+        return new StatusDto(HttpStatus.ACCEPTED, "Account deleted", LocalDateTime.now());
+    }
+
 }

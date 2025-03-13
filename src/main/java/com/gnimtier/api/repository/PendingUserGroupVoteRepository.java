@@ -9,4 +9,7 @@ public interface PendingUserGroupVoteRepository extends JpaRepository<PendingUse
     Boolean existsByUserIdAndPendingUserGroupId(String userId, String pendingUserGroupId);
 
     Optional<PendingUserGroupVote> findFirstByUserIdOrderByCreatedAtDesc(String userId);
+
+    // ONLY FOR TESTING
+    void deleteAllByUserId(String userId);
 }

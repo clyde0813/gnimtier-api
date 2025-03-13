@@ -7,4 +7,7 @@ import java.util.Optional;
 
 public interface UserOauthRepository extends JpaRepository<UserOauth, String> {
     Optional<UserOauth> findById(String id);
+
+    // ONLY FOR TESTING
+    void deleteAllByUserId(String userId);
 }
