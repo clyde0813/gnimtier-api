@@ -1,9 +1,8 @@
 package com.gnimtier.api.service.riot.tft;
 
 import com.gnimtier.api.client.riot.RiotApiClient;
-import com.gnimtier.api.data.dto.riot.client.Response.PageableResponseDto;
+import com.gnimtier.api.data.dto.riot.client.PageableDto;
 import com.gnimtier.api.data.dto.riot.internal.response.RiotUserResponseDto;
-import com.gnimtier.api.data.dto.riot.client.request.PageableRequestDto;
 import com.gnimtier.api.data.dto.riot.internal.request.LeaderboardRequestDto;
 import com.gnimtier.api.data.dto.riot.internal.response.SummonerResponseDto;
 import com.gnimtier.api.data.entity.auth.User;
@@ -33,16 +32,16 @@ public class LeaderboardService {
 
     private final Logger LOGGER = LoggerFactory.getLogger(LeaderboardService.class);
 
-    public PageableResponseDto<RiotUserResponseDto> getLeaderboard(LeaderboardRequestDto leaderboardRequestDto) {
+    public PageableDto.PageableResponseDto<RiotUserResponseDto> getLeaderboard(LeaderboardRequestDto leaderboardRequestDto) {
         LOGGER.info("[getLeaderboard] - Getting Leaderboard");
         // gnt riot 에 보낼 요청 body
-        PageableRequestDto<String> puuidRequestDto = new PageableRequestDto<>();
+        PageableDto.PageableRequestDto<String> puuidRequestDto = new PageableDto.PageableRequestDto<>();
 
         // gnt riot api에 보낼 puuid list
         List<String> puuidList = userGroupService.getPuuidList(leaderboardRequestDto.getGroupId());
 
         List<RiotUserResponseDto> riotUserResponseDtoList = new ArrayList<>();
-        PageableResponseDto<RiotUserResponseDto> riotLeaderboardResponseDto = new PageableResponseDto<>();
+        PageableDto.PageableResponseDto<RiotUserResponseDto> riotLeaderboardResponseDto = new PageableDto.PageableResponseDto<>();
 
 
         puuidRequestDto.setData(puuidList);
@@ -50,7 +49,7 @@ public class LeaderboardService {
         puuidRequestDto.setPage(leaderboardRequestDto.getPage());
         puuidRequestDto.setPageSize(5);
 
-        PageableResponseDto<SummonerResponseDto> summonerResponseDtoList = tftApiClient.getSummonerLeaderboard(puuidRequestDto);
+        PageableDto.PageableResponseDto<SummonerResponseDto> summonerResponseDtoList = tftApiClient.getSummonerLeaderboard(puuidRequestDto);
 
         summonerResponseDtoList
                 .getData()

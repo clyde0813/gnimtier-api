@@ -2,10 +2,9 @@ package com.gnimtier.api.service.gnt;
 
 import com.gnimtier.api.client.riot.RiotApiClient;
 import com.gnimtier.api.data.dto.gnt.PendingUserGroupDto;
-import com.gnimtier.api.data.dto.gnt.PendingUserGroupRequestDto;
 import com.gnimtier.api.data.dto.gnt.UserGroupDto;
 import com.gnimtier.api.data.dto.gnt.UserGroupRankDto;
-import com.gnimtier.api.data.dto.riot.client.Response.PageableResponseDto;
+import com.gnimtier.api.data.dto.riot.client.PageableDto;
 import com.gnimtier.api.data.dto.riot.client.request.RankRequestDto;
 import com.gnimtier.api.data.entity.auth.User;
 import com.gnimtier.api.data.entity.gnt.PendingUserGroup;
@@ -132,13 +131,13 @@ public class UserGroupService {
             throw new CustomException("NOT JOINED GROUP.", HttpStatus.BAD_REQUEST);
         }
 
-        userGroupAssociationRepository.deleteUserGroupAssociationByUserIdAndGroupId(user.getId(), groupId);
+        userGroupAssociationRepository.deleteByUserIdAndGroupId(user.getId(), groupId);
         LOGGER.info("[UserGroupService] - leaveGroup success : {}", user.getId());
     }
 
 
     // 투표중인 그룹 검색
-    public PageableResponseDto<PendingUserGroupDto> getPendingGroups(String sortBy, int page) {
+    public PageableDto.PageableResponseDto<PendingUserGroupDto.PendingUserGroupResponseDto> getPendingGroups(String sortBy, int page) {
         LOGGER.info("[UserGroupService] - getPendingGroups : sortBy={}, page={}", sortBy, page);
         int PAGE_SIZE = 5;
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
@@ -152,8 +151,8 @@ public class UserGroupService {
                 .apply(pageable);
 
         // ResponseDto 생성 및 데이터 설정
-        return PageableResponseDto
-                .<PendingUserGroupDto>builder()
+        return PageableDto.PageableResponseDto
+                .<PendingUserGroupDto.PendingUserGroupResponseDto>builder()
                 .data(pendingUserGroupsPage
                         .stream()
                         .map(PendingUserGroup::toDto)
@@ -213,7 +212,7 @@ public class UserGroupService {
 
 
     // 그룹 생성 신청
-    public void createGroup(User user, PendingUserGroupRequestDto pendingUserGroupRequestDto) {
+    public void createGroup(User user, PendingUserGroupDto.PendingUserGroupRequestDto pendingUserGroupRequestDto) {
         LOGGER.info("[UserGroupService] - createGroup : {}", user.getId());
         // 이미 생성한 그룹인 경우
         Optional<PendingUserGroup> latestGroupOpt = pendingUserGroupRepository.findFirstByUserIdOrderByCreatedAtDesc(user.getId());

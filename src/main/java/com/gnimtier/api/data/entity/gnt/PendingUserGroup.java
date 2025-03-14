@@ -34,8 +34,8 @@ public class PendingUserGroup {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    public PendingUserGroupDto toDto() {
-        return PendingUserGroupDto
+    public PendingUserGroupDto.PendingUserGroupResponseDto toDto() {
+        return PendingUserGroupDto.PendingUserGroupResponseDto
                 .builder()
                 .id(id)
                 .name(name)

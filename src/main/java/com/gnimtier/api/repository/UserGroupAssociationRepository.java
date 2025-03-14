@@ -13,7 +13,7 @@ public interface UserGroupAssociationRepository extends JpaRepository<UserGroupA
 
     Optional<UserGroupAssociation> findByUserIdAndGroupId(String userId, String groupId);
 
-    void deleteUserGroupAssociationByUserIdAndGroupId(String userId, String groupId);
+    void deleteByUserIdAndGroupId(String userId, String groupId);
     
     Boolean existsByUserIdAndGroupId(String userId, String groupId);
 

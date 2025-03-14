@@ -2,9 +2,8 @@ package com.gnimtier.api.controller.gnt;
 
 import com.gnimtier.api.data.dto.basic.DataDto;
 import com.gnimtier.api.data.dto.basic.StatusDto;
-import com.gnimtier.api.data.dto.gnt.PendingUserGroupRequestDto;
+import com.gnimtier.api.data.dto.gnt.PendingUserGroupDto;
 import com.gnimtier.api.data.dto.gnt.UserGroupDto;
-import com.gnimtier.api.data.dto.riot.internal.request.UserGroupSearchRequestDto;
 import com.gnimtier.api.data.entity.auth.User;
 import com.gnimtier.api.service.auth.AuthService;
 import com.gnimtier.api.service.gnt.UserGroupService;
@@ -80,7 +79,7 @@ public class UserGroupController {
     @Tag(name = "(UserGroup) 그룹 생성 신청", description = "로그인 필수, 6시간당 1개의 그룹 생성 신청 가능")
     @PostMapping("/pending")
     @PreAuthorize("isAuthenticated()")
-    public StatusDto createGroupVote(@RequestBody PendingUserGroupRequestDto pendingUserGroupRequestDto) {
+    public StatusDto createGroupVote(@RequestBody PendingUserGroupDto.PendingUserGroupRequestDto pendingUserGroupRequestDto) {
         User user = authService.getUserFromAuthentication();
         userGroupService.createGroup(user, pendingUserGroupRequestDto);
         return new StatusDto(HttpStatus.ACCEPTED, "UserGroup created", LocalDateTime.now());

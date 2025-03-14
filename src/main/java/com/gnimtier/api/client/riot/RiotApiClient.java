@@ -1,7 +1,6 @@
 package com.gnimtier.api.client.riot;
 
-import com.gnimtier.api.data.dto.riot.client.Response.PageableResponseDto;
-import com.gnimtier.api.data.dto.riot.client.request.PageableRequestDto;
+import com.gnimtier.api.data.dto.riot.client.PageableDto;
 import com.gnimtier.api.data.dto.riot.client.request.RankRequestDto;
 import com.gnimtier.api.data.dto.riot.internal.response.SummonerResponseDto;
 import com.gnimtier.api.exception.CustomException;
@@ -67,9 +66,9 @@ public class RiotApiClient {
         return response;
     }
 
-    public PageableResponseDto<SummonerResponseDto> getSummonerLeaderboard(PageableRequestDto<String> puuidRequestDto) {
+    public PageableDto.PageableResponseDto<SummonerResponseDto> getSummonerLeaderboard(PageableDto.PageableRequestDto<String> puuidRequestDto) {
         LOGGER.info("[getSummonerLeaderboard] - Getting Summoner Leaderboard");
-        PageableResponseDto<SummonerResponseDto> response = WebClient
+        PageableDto.PageableResponseDto<SummonerResponseDto> response = WebClient
                 .create(GNT_API_URL)
                 .post()
                 .uri(uriBuilder -> uriBuilder
@@ -80,7 +79,7 @@ public class RiotApiClient {
                 .onStatus(HttpStatus.TOO_MANY_REQUESTS::equals, clientResponse -> Mono.error(new CustomException("TOO_MANY_REQUESTS", HttpStatus.TOO_MANY_REQUESTS)))
                 .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new CustomException("Bad Request", HttpStatus.BAD_REQUEST)))
                 .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new CustomException("Riot API Error", HttpStatus.BAD_REQUEST)))
-                .bodyToMono(new ParameterizedTypeReference<PageableResponseDto<SummonerResponseDto>>() {
+                .bodyToMono(new ParameterizedTypeReference<PageableDto.PageableResponseDto<SummonerResponseDto>>() {
                 })
                 .block();
         LOGGER.info("[getSummonerLeaderboard] - Got Summoner Leaderboard");
