@@ -3,6 +3,7 @@ package com.gnimtier.api.data.entity.auth;
 import com.gnimtier.api.data.dto.gnt.UserDto;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
 
@@ -26,6 +27,9 @@ public class User {
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", nullable = true)
+    private LocalDateTime updatedAt;
 
 //    @Column(nullable = false)
 //    private String password;

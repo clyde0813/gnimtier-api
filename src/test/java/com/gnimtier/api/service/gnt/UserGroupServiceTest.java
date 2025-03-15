@@ -82,10 +82,8 @@ class UserGroupServiceTest {
         userGroup.setName("Group 1");
         userGroup.setDescription("group 1");
         userGroup.setCreatedAt(LocalDateTime.now());
-        userGroup.setCategoryId(1);
         userGroup.setOfficial(true);
         userGroup.setParentId(null);
-        userGroup.setRoot(true);
         when(userGroupAssociationRepository.findAllByUserId(userId)).thenReturn(List.of(new UserGroupAssociation(1L, userId, "group1", "group1")));
         when(userGroupRepository.findById("group1")).thenReturn(userGroup);
 
