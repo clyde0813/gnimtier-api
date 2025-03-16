@@ -2,9 +2,12 @@ package com.gnimtier.api.controller.gnt;
 
 import com.gnimtier.api.data.dto.basic.DataDto;
 import com.gnimtier.api.data.dto.basic.StatusDto;
+import com.gnimtier.api.data.dto.gnt.UserCommentDto;
+import com.gnimtier.api.data.dto.riot.client.PageableDto;
 import com.gnimtier.api.data.dto.riot.internal.request.SummonerRegisterRequestDto;
 import com.gnimtier.api.data.entity.auth.User;
 import com.gnimtier.api.service.auth.AuthService;
+import com.gnimtier.api.service.gnt.UserCommentService;
 import com.gnimtier.api.service.gnt.UserGroupService;
 import com.gnimtier.api.service.gnt.UserService;
 import com.gnimtier.api.service.gnt.UserTmpService;
@@ -29,6 +32,7 @@ public class UserController {
     private final UserTmpService userTmpService;
     private final UserGroupService userGroupService;
     private final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
+    private final UserCommentService userCommentService;
 
     // 사용자 정보 조회
     // json : data - user - UserDto
@@ -92,4 +96,22 @@ public class UserController {
         return new StatusDto(HttpStatus.ACCEPTED, "Account deleted", LocalDateTime.now());
     }
 
+    // 댓긇 조회
+    @Tag(name = "(Comment) 사용자 댓글 조회", description = "댓글 조회")
+    @GetMapping("/{userId}/comments")
+    public DataDto<?> getUserComment(@PathVariable String userId, PageableDto.PlainRequestDto plainRequestDto) {
+        LOGGER.info("[UserController.getUserComments] called");
+        return new DataDto<>(userCommentService.getUserComment(userId, plainRequestDto));
+    }
+
+    // 댓글 등록
+    @Tag(name = "(Comment) 사용자 댓글 등록", description = "댓글 등록")
+    @PostMapping("/{userId}/comments")
+    @PreAuthorize("isAuthenticated()")
+    public StatusDto postUserComment(@PathVariable String userId, @RequestBody(required = true) UserCommentDto.UserCommentRequestDto userCommentRequestDto) {
+        LOGGER.info("[UserController.postUserComment] called()");
+        User user = authService.getUserFromAuthentication();
+        userCommentService.postUserComment(user, userId, userCommentRequestDto);
+        return new StatusDto(HttpStatus.ACCEPTED, "COMMENT HAS BEEN REGISTERED", LocalDateTime.now());
+    }
 }

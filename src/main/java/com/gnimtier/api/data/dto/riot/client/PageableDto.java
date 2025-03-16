@@ -27,10 +27,29 @@ public class PageableDto {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
+    public static class PlainRequestDto {
+        private String sortBy;
+        private int page;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
     public static class PageableRequestDto<T> {
         private List<T> data;
         private String sortBy;
         private int page;
         private int pageSize;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class PageableIDRequestDto {
+        private String id;
+        private String sortBy;
+        private int page;
     }
 }

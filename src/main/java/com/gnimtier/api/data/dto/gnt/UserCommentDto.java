@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @Builder
 public class UserCommentDto {
     @Data
@@ -27,7 +26,6 @@ public class UserCommentDto {
     @AllArgsConstructor
     @Builder
     public static class UserCommentRequestDto {
-        private String userId;
         private String comment;
     }
 

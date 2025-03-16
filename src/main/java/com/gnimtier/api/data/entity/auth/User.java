@@ -34,6 +34,7 @@ public class User {
 //    @Column(nullable = false)
 //    private String password;
 
+    // toDto 로 리펙해야됨
     public UserDto getUserDto() {
         UserDto userDto = new UserDto();
         userDto.setId(id);
