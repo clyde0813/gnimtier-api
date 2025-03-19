@@ -49,7 +49,7 @@ public class UserGroup {
                 .build();
     }
 
-    public UserGroupRankDto toDto(int rank, int userCount) {
+    public UserGroupRankDto toDto(Integer rank, int userCount) {
         return UserGroupRankDto
                 .builder()
                 .rank(rank)

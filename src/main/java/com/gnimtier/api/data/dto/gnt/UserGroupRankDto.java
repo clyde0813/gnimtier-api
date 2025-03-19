@@ -13,5 +13,5 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = true)
 public class UserGroupRankDto extends UserGroupDto {
     private Integer userCount;
-    private int rank;
+    private Integer rank;
 }
